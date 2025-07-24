@@ -7,6 +7,6 @@ export class Bicho {
         this.cry     = species.cry;
     }
     speak() {
-        console.log(this.cry);
+        return this.cry;
     }
 }
