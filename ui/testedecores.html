@@ -36,6 +36,9 @@
             height: 100%;
             width: 100%;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            font-size: 20px;
         }
         .wrapper {
             position: absolute;
@@ -43,7 +46,6 @@
             left: 50%;
             width: 1920px;
             height: 1080px;
-            transform-origin: top left;
             background-color: #FDF9ED;
         }
         .game-ui {
@@ -54,26 +56,21 @@
             position: relative;
             overflow: hidden;
         }
-        .ui-element {
-            display: flex;
-            align-items: center;
-            font-size: 20px;
-        }
         .wrapper {
             transform: translate(-50%, -50%) scale(1);
         }
 
-        /* 900p */
-        @media (max-width: 1600px) {
+        /* 720p */
+        @media (min-width: 1280px) and (max-width: 1599px) {
             .wrapper {
-                transform: translate(-50%, -50%) scale(0.8333);
+                transform: translate(-50%, -50%) scale(0.6666);
             }
         }
 
-        /* 768p */
-        @media (max-width: 1366px) {
+        /* 900p */
+        @media (min-width: 1600px) and (max-width: 2559px) {
             .wrapper {
-                transform: translate(-50%, -50%) scale(0.7111);
+                transform: translate(-50%, -50%) scale(0.8333);
             }
         }
 
@@ -93,10 +90,10 @@
     </style>
         <div class="wrapper">
             <div class="game-ui">
-                <h2 class="destaque1 ui-element">TEXTO DE DESTAQUE</h2>
-                <p class="texto ui-element">kdjhf dkeifjk <a href="">abacaxi</a> guatemala lalala ppepro</p>
-                <h2 class="destaque2 ui-element">TEXTO DE DESTAQUE</h2>
-                <p class="texto ui-element">textotextotexto</p>
+                <h2 class="destaque1">TEXTO DE DESTAQUE</h2>
+                <p class="texto">kdjhf dkeifjk <a href=""> abacaxi </a> guatemala lalala ppepro</p>
+                <h2 class="destaque2">TEXTO DE DESTAQUE</h2>
+                <p class="texto">textotextotexto</p>
         </div>
     </div>
 </body>
