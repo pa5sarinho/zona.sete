@@ -1,0 +1,103 @@
+<html>
+<head></head>
+<body>
+    <style>
+        h2
+        {
+            width: fit-content;
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+        .destaque1 
+        {
+            background-color: #01178e;
+            color: #FDF9ED;
+        }
+        .destaque2
+        {
+            background-color: #0222D9;
+            color: #FDF9ED;
+        }
+        .texto
+        {
+            color: #0e0e0e;
+        }
+        a
+        {
+            color: #01178e;
+            font-weight: bold;
+        }
+        html, body
+        {
+            background-color: #FDF9ED;
+            font-family: monospace;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+        .wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 1920px;
+            height: 1080px;
+            transform-origin: top left;
+            background-color: #FDF9ED;
+        }
+        .game-ui {
+            background-color: #FDF9ED;
+            aspect-ratio: 16 / 9;
+            width: 100%;
+            max-height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        .ui-element {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+        }
+        .wrapper {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* 900p */
+        @media (max-width: 1600px) {
+            .wrapper {
+                transform: translate(-50%, -50%) scale(0.8333);
+            }
+        }
+
+        /* 768p */
+        @media (max-width: 1366px) {
+            .wrapper {
+                transform: translate(-50%, -50%) scale(0.7111);
+            }
+        }
+
+        /* 1440p */
+        @media (min-width: 2560px) and (max-width: 3839px) {
+            .wrapper {
+                transform: translate(-50%, -50%) scale(1.3333);
+            }
+        }
+        /* 4K */
+        @media (min-width: 3840px) {
+            .wrapper {
+                transform: translate(-50%, -50%) scale(2);
+            }
+        }
+
+    </style>
+        <div class="wrapper">
+            <div class="game-ui">
+                <h2 class="destaque1 ui-element">TEXTO DE DESTAQUE</h2>
+                <p class="texto ui-element">kdjhf dkeifjk <a href="">abacaxi</a> guatemala lalala ppepro</p>
+                <h2 class="destaque2 ui-element">TEXTO DE DESTAQUE</h2>
+                <p class="texto ui-element">textotextotexto</p>
+        </div>
+    </div>
+</body>
+</html>
