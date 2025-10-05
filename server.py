@@ -1,11 +1,27 @@
 import http.server
 import socketserver
 
-host = 'localhost'
-port = 8000
+PORT = 8000
 
-handler = http.server.SimpleHTTPRequestHandler
+class HttpRequestHandler(http.server.SimpleHTTPRequestHandler):
+    extensions_map = {
+        '': 'application/octet-stream',
+        '.manifest': 'text/cache-manifest',
+        '.html': 'text/html',
+        '.png': 'image/png',
+        '.jpg': 'image/jpg',
+        '.svg':	'image/svg+xml',
+        '.css':	'text/css',
+        '.js':'application/javascript',
+        '.wasm': 'application/wasm',
+        '.json': 'application/json',
+        '.xml': 'application/xml',
+    }
 
-with socketserver.TCPServer((host, port), handler) as server:
-    print(f'Server started at http://{host}:{port}')
-    server.serve_forever()
+httpd = socketserver.TCPServer(("localhost", PORT), HttpRequestHandler)
+
+try:
+    print(f"serving at http://localhost:{PORT}")
+    httpd.serve_forever()
+except KeyboardInterrupt:
+    pass

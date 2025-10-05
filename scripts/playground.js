@@ -1,9 +1,8 @@
 import { Bicho } from "./objects/Bicho.js";
+import { animais } from "./objects/animais.js";
 
-fetch('scripts/objects/objects.json')
-.then(response => response.json())
-.then(data => {
-    let gato = new Bicho(data.animais.gato_domestico);
-    const p = document.getElementById('teste');
-    p.innerHTML = gato.speak();
-});
+console.log(animais);
+
+let gato = new Bicho(animais.gato_domestico);
+const p = document.getElementById('teste');
+p.innerHTML = gato.speak();

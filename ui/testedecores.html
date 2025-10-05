@@ -2,11 +2,16 @@
 <head></head>
 <body>
     <style>
-        h2
+		@font-face
+		{
+			font-family: jetBrainsMono;
+			src: url(JetBrainsMono-Medium.woff2);
+		}
+    
+        h2, h3
         {
             width: fit-content;
-            padding-left: 5px;
-            padding-right: 5px;
+            padding: 0 5px 0 5px;
         }
         .destaque1 
         {
@@ -15,8 +20,13 @@
         }
         .destaque2
         {
-            background-color: #0222D9;
-            color: #FDF9ED;
+            background-color: #01178e;
+            color: #F2854A;
+        }
+        .destaque3
+        {
+            background-color: #992e2e;
+            color: #F2854A;
         }
         .texto
         {
@@ -30,7 +40,7 @@
         html, body
         {
             background-color: #FDF9ED;
-            font-family: monospace;
+            font-family: jetBrainsMono;
             margin: 0;
             padding: 0;
             height: 100%;
@@ -38,7 +48,8 @@
             overflow: hidden;
             display: flex;
             align-items: center;
-            font-size: 20px;
+            font-size: 15px;
+            line-height: 25px;
         }
         .wrapper {
             position: absolute;
@@ -59,6 +70,9 @@
         .wrapper {
             transform: translate(-50%, -50%) scale(1);
         }
+        .main-screen {
+			padding: 60px;
+        }
 
         /* 720p */
         @media (min-width: 1280px) and (max-width: 1599px) {
@@ -68,7 +82,7 @@
         }
 
         /* 900p */
-        @media (min-width: 1600px) and (max-width: 2559px) {
+        @media (min-width: 1600px) and (max-width: 1889px) {
             .wrapper {
                 transform: translate(-50%, -50%) scale(0.8333);
             }
@@ -88,13 +102,17 @@
         }
 
     </style>
-        <div class="wrapper">
-            <div class="game-ui">
-                <h2 class="destaque1">TEXTO DE DESTAQUE</h2>
-                <p class="texto">kdjhf dkeifjk <a href=""> abacaxi </a> guatemala lalala ppepro</p>
-                <h2 class="destaque2">TEXTO DE DESTAQUE</h2>
-                <p class="texto">textotextotexto</p>
+    <div class="wrapper">
+        <div class="game-ui">
+        <div class="main-screen">
+            <h2 class="destaque1">TEXTO DE DESTAQUE - PADRÃO</h2>
+            <p class="texto">kdjhf dkeifjk <a href=""> abacaxi </a> guatemala lalala ppepro</p>
+            <h3 class="destaque2">TEXTO DE DESTAQUE - ATENÇÃO</h2>
+            <p class="texto">I tried so hard and got so far</p>
+            <h3 class="destaque3">TEXTO DE DESTAQUE - PERIGO!!!</h2>
+            <p class="texto">In the end, it doesn't even matter<br>I had to go, to lose it all</p>
         </div>
-    </div>
+    	</div>
+	</div>
 </body>
 </html>
