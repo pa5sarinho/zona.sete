@@ -16,13 +16,19 @@ export let animais = {
         "base_agility": 90,
 		"diet_id": 1,
         "diet": {
-        	"pt": "carnivoro"	
+        	"pt": "carnívoro"	
         },
         "fav_foods": [],
         "lifespan": 15,
         "habits": 1,
         "cry": "miau",
-        "breeding": ["mamifero", 4],
+        "breeding": {
+        	"class": {
+        		"pt": "mamífero"
+        	},
+        	"class_id": 1,
+        	"months": 4
+        },
         "coats": []
     },
     "tembu": {

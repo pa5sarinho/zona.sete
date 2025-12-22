@@ -2,8 +2,165 @@
     <head>
 
     </head>
+    <style>
+    	@font-face
+		{
+			font-family: jetBrainsMono;
+			src: url("./ui/JetBrainsMono-Medium.woff2");
+		}
+    
+        h2, h3
+        {
+            width: fit-content;
+        }
+        .destaque1 
+        {
+            background-color: #01178e;
+            color: #FDF9ED;
+        }
+        .destaque2
+        {
+            background-color: #01178e;
+            color: #F2854A;
+        }
+        .destaque3
+        {
+            background-color: #992e2e;
+            color: #F2854A;
+        }
+        .texto
+        {
+            margin: 0px;
+            padding: 0 5px 0 5px;
+        }
+        p
+        {
+        	color: #0e0e0e;
+        }
+        a
+        {
+            color: #01178e;
+            font-weight: bold;
+        }
+        html, body
+        {
+            background-color: #FDF9ED;
+            font-family: jetBrainsMono;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            line-height: 30px;
+        }
+        .wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 1920px;
+            height: 1080px;
+            background-color: #FDF9ED;
+        }
+        .game-ui {
+            aspect-ratio: 16 / 9;
+            width: 100%;
+            max-height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        .wrapper {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .main-screen {
+			padding: 60px;
+        }
+    	.map-layer, .foreground-layer, .ui-layer {
+    	    position: absolute;
+    	    align-items: center;
+    	    justify-content: center;
+    	    font-size: 20px;
+    	    cursor: default;
+    	}
+    	
+    	.map-layer {
+    	    z-index: -1;
+    	    color: rgb(63, 63, 63);
+    	    width: 100%;
+    	    height: 100%;
+    	}
+
+    	.grid-row {
+    	    display: flex;
+    	    flex-wrap: nowrap;
+    	}
+    	
+    	.grid-item {
+    	    display: flex;
+    	    align-items: center;
+    	    justify-content: center;
+    	    outline: 1px solid rgba(128, 128, 128, 0.3);
+    	    font-weight: bold;
+    	    flex-shrink: 0;
+    	}
+
+    	.grid-item img {
+    	    width: 100%;
+    	    height: 100%;
+    	    object-fit: contain;
+    	    object-position: center;
+    	}
+
+		.ui-layer {
+	   		z-index: 0;
+		}
+
+		
+    	
+    	/* 720p */
+        @media (max-width: 1599px) or (max-height: 899px){
+            .wrapper {
+                transform: translate(-50%, -50%) scale(0.6666);
+            }
+        }
+
+        /* 900p */
+        @media ((min-width: 1600px) and (max-width: 1917px)) and ((min-height: 900px) and (max-height: 1079px)){
+            .wrapper {
+                transform: translate(-50%, -50%) scale(0.8333);
+            }
+        }
+
+        /* 1440p */
+        @media (min-width: 2560px) and (max-width: 3839px) and (min-height: 1440p){
+            .wrapper {
+                transform: translate(-50%, -50%) scale(1.3333);
+            }
+        }
+        /* 4K */
+        @media (min-width: 3840px) {
+            .wrapper {
+                transform: translate(-50%, -50%) scale(2);
+            }
+        }
+    </style>
     <body>
-        <p id='teste'></p>
+        <div class="wrapper">
+            <div class="main-screen">
+            	<div class='map-layer' id='map'></div>
+         	    <div class="game-ui ui-layer">
+                <p id='teste' class='texto'></p>
+                <h2 class="destaque1 texto">TEXTO DE DESTAQUE - PADRÃO</h2>
+                <p class="texto">kdjhf dkeifjk <a href=""> abacaxi </a> guatemala lalala ppepro</p>
+                <h3 class="destaque2 texto">TEXTO DE DESTAQUE - ATENÇÃO</h2>
+                <p class="texto">I tried so hard and got so far</p>
+                <h3 class="destaque3 texto">TEXTO DE DESTAQUE - PERIGO!!!</h2>
+                <p class="texto">In the end, it doesn't even matter<br>I had to fall, to lose it all</p>
+            	</div>
+        	</div>
+       	</div>
     </body>
     <script type="module" src="./scripts/playground.js"></script>
 </html>
