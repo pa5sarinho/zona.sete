@@ -1,6 +1,6 @@
 <html>
     <head>
-
+		<meta charset="UTF-8">
     </head>
     <style>
     	@font-face
@@ -8,43 +8,58 @@
 			font-family: jetBrainsMono;
 			src: url("./ui/JetBrainsMono-Medium.woff2");
 		}
+
+		:root {
+		  --background: #FDF9ED;
+		  --foreground: #0e0e0e;
+		  --phthalo-blue: #01178e;
+		  --auburn: #992e2e;
+		  --orange: #F2854A;
+		  --pastel-blue: #5986b2
+		}
     
         h2, h3
         {
             width: fit-content;
         }
+        
         .destaque1 
         {
-            background-color: #01178e;
-            color: #FDF9ED;
+            background-color: var(--phthalo-blue);
+            color: var(--background);
         }
+        
         .destaque2
         {
-            background-color: #01178e;
-            color: #F2854A;
+            background-color: var(--phthalo-blue);
+            color: var(--orange);
         }
+        
         .destaque3
         {
-            background-color: #992e2e;
-            color: #F2854A;
+            background-color: var(--auburn);
+            color: var(--orange);
         }
+        
         .texto
         {
             margin: 0px;
             padding: 0 5px 0 5px;
+            overflow: hidden;
         }
-        p
-        {
-        	color: #0e0e0e;
+        
+        p {
+        	color: var(--foreground);
         }
-        a
-        {
-            color: #01178e;
+        
+        a {
+            color: var(--phthalo-blue);
             font-weight: bold;
         }
+        
         html, body
         {
-            background-color: #FDF9ED;
+            background-color: var(--background);
             font-family: jetBrainsMono;
             margin: 0;
             padding: 0;
@@ -53,17 +68,18 @@
             overflow: hidden;
             display: flex;
             align-items: center;
-            font-size: 15px;
             line-height: 30px;
         }
+        
         .wrapper {
             position: absolute;
             top: 50%;
             left: 50%;
             width: 1920px;
             height: 1080px;
-            background-color: #FDF9ED;
+            background-color: var(--background);
         }
+        
         .game-ui {
             aspect-ratio: 16 / 9;
             width: 100%;
@@ -71,12 +87,15 @@
             position: relative;
             overflow: hidden;
         }
+        
         .wrapper {
             transform: translate(-50%, -50%) scale(1);
         }
+        
         .main-screen {
 			padding: 60px;
         }
+        
     	.map-layer, .foreground-layer, .ui-layer {
     	    position: absolute;
     	    align-items: center;
@@ -84,7 +103,8 @@
     	    font-size: 20px;
     	    cursor: default;
     	}
-    	
+
+    	/* MAP LAYER */
     	.map-layer {
     	    z-index: -1;
     	    color: rgb(63, 63, 63);
@@ -112,12 +132,83 @@
     	    object-fit: contain;
     	    object-position: center;
     	}
-
+    	
+        /* UI LAYER */
 		.ui-layer {
 	   		z-index: 0;
 		}
 
-		
+		.ui-header {
+			background-image: linear-gradient(to right, var(--orange), var(--pastel-blue));
+			color: var(--background);
+			height: 30px;
+			width: inherit;
+		}
+
+		#general-info {
+			display: flex;
+			background-color: var(--background);
+			width: 540px;
+		}
+
+		#window-popup {
+			z-index: 2;
+			background-color: var(--background);
+		}
+
+		.event-log {
+			width: 540px;
+			background-color: var(--background);
+			position: absolute;
+		}
+
+		#lower-log {
+			display: flex;
+			height: 60px;
+			bottom: 120px;
+		}
+
+		#expanded-log {
+			z-index: 1;
+			display: none;
+			height: 780px;
+			bottom: 120px;
+		}
+
+		.portrait {
+			height: 60px;
+			width: 60px;
+		}
+
+		.log-text {
+			text-overflow: ellipsis;
+		}
+
+		.expand-button {
+			height: 30px;
+			width: 30px;
+			position: absolute;
+			right: 0px;
+			bottom: 0px;
+			text-align: center;
+			cursor: pointer;
+			background-color: var(--pastel-blue);
+			color: var(--background);
+		}
+
+		.close-button {
+			height: 30px;
+			width: 30px;
+			position: absolute;
+			right: 0px;
+			top: 0px;
+			text-align: center;
+			cursor: pointer;
+			background-color: var(--pastel-blue);
+			color: var(--background);
+		}
+
+		/*---- CALCULOS DE TRADUÇÃO DE 1080P PARA DIVERSAS RESOLUÇÕES ----*/
     	
     	/* 720p */
         @media (max-width: 1599px) or (max-height: 899px){
@@ -150,14 +241,23 @@
         <div class="wrapper">
             <div class="main-screen">
             	<div class='map-layer' id='map'></div>
-         	    <div class="game-ui ui-layer">
-                <p id='teste' class='texto'></p>
-                <h2 class="destaque1 texto">TEXTO DE DESTAQUE - PADRÃO</h2>
-                <p class="texto">kdjhf dkeifjk <a href=""> abacaxi </a> guatemala lalala ppepro</p>
-                <h3 class="destaque2 texto">TEXTO DE DESTAQUE - ATENÇÃO</h2>
-                <p class="texto">I tried so hard and got so far</p>
-                <h3 class="destaque3 texto">TEXTO DE DESTAQUE - PERIGO!!!</h2>
-                <p class="texto">In the end, it doesn't even matter<br>I had to fall, to lose it all</p>
+         	    <div class="game-ui ui-layer" id="ui">
+         	    	<div id="general-info">
+						<div id="weather">🌣</div>
+						<div id="degrees" class="texto">32°C</div>
+						<div id="day" class="texto">Terça</div>
+						<div id="time" class="texto">14:55</div>
+         	    	</div>
+         	    	<div id="botao-window">teste</div>
+	                <div class="event-log" id="expanded-log">
+	                	<div class="ui-header texto">Registro de eventos</div>
+						<div class="close-button" id="log-minimize">▼</div>
+	                </div>
+	                <div class="event-log" id="lower-log">
+						<img src="ui/kitty.png" class="portrait">
+						<p class="texto log-text"><a href="">Xena</a>: que infortunio! Todo o peixe acabou e vamos todos morrer de fome antes da seca</p>
+						<div class="expand-button" id="log-expand">▲</div>
+	                </div>
             	</div>
         	</div>
        	</div>
