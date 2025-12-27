@@ -6,7 +6,6 @@ console.log(animais);
 
 let gato = new Bicho(animais.gato_domestico);
 let map = new Map(document.getElementById('map'), 30);
-map.draw(1800, 960); // 60x32
 
 const logExpandButton = document.getElementById('log-expand');
 const logMinimizeButton = document.getElementById('log-minimize');
@@ -16,6 +15,11 @@ const teste = document.getElementById('botao-window');
 logExpandButton.onclick = expandLog;
 logMinimizeButton.onclick = minimizeLog;
 teste.onclick = function() { addWindow('window', 20, 10); }
+
+let mapArray = Array.from({length: 1920}, () => Math.floor(Math.random() * 14));
+console.log(mapArray);
+
+map.draw(1800, 960, mapArray); // 60x32
 
 function expandLog(event) {
 	expandedLog.style.display = 'flex';

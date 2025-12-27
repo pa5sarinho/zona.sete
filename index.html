@@ -40,6 +40,16 @@
             background-color: var(--auburn);
             color: var(--orange);
         }
+
+        .destaque4 {
+        	background-color: var(--orange);
+        	color: var(--auburn);
+        }
+
+        .destaque5 {
+        	background-color: var(--pastel-blue);
+        	color: var(--background);
+        }
         
         .texto
         {
@@ -55,6 +65,8 @@
         a {
             color: var(--phthalo-blue);
             font-weight: bold;
+            text-decoration: underline;
+            cursor: pointer;
         }
         
         html, body
@@ -69,6 +81,7 @@
             display: flex;
             align-items: center;
             line-height: 30px;
+            user-select: none;
         }
         
         .wrapper {
@@ -145,10 +158,79 @@
 			width: inherit;
 		}
 
+		.game-header {
+			display: flex;
+		}
+
 		#general-info {
 			display: flex;
 			background-color: var(--background);
 			width: 540px;
+		}
+
+		#weather {
+			width: 30px;
+			text-align: center;
+		}
+
+		#degrees {
+			width: 60px;
+			text-align: center;
+		}
+
+		#day {
+			width: 90px;
+			text-align: center;
+		}
+
+		#time {
+			width: 90px;
+			text-align: center;
+			color: var(--auburn);
+		}
+
+		#button1 {
+			width: 120px;
+			cursor: pointer;
+			text-align: center;
+		}
+
+		#button2 {
+			width: 150px;
+			cursor: pointer;
+			text-align: center;
+		}
+
+		#button3 {
+			width: 150px;
+			cursor: pointer;
+			text-align: center;
+		}
+
+		#button4 {
+			width: 150px;
+			cursor: pointer;
+			text-align: center;
+		}
+
+		#button5 {
+			width: 150px;
+			cursor: pointer;
+			text-align: center;
+		}
+
+		.open-section {
+			text-decoration: underline;
+		}
+
+		#sticky-window {
+			position: absolute;
+			display: none;
+			height: 420px;
+			width: 540px;
+			top: 0px;
+			right: 120px;
+			background-color: var(--background);
 		}
 
 		#window-popup {
@@ -208,6 +290,24 @@
 			color: var(--background);
 		}
 
+		.portrait-list {
+			display: flex;
+			position: absolute;
+			height: 540px;
+		}
+
+		#smaller-p-list {
+			width: 60px;
+			bottom: 120px;
+			right: 120px;
+		}
+
+		#full-p-list {
+			width: 1200px;
+			bottom: 120px;
+			right: 180px;
+		}
+
 		/*---- CALCULOS DE TRADUÇÃO DE 1080P PARA DIVERSAS RESOLUÇÕES ----*/
     	
     	/* 720p */
@@ -242,22 +342,33 @@
             <div class="main-screen">
             	<div class='map-layer' id='map'></div>
          	    <div class="game-ui ui-layer" id="ui">
-         	    	<div id="general-info">
-						<div id="weather">🌣</div>
-						<div id="degrees" class="texto">32°C</div>
-						<div id="day" class="texto">Terça</div>
-						<div id="time" class="texto">14:55</div>
+         	    	<div class="game-header">
+	         	    	<div id="general-info">
+							<div id="weather">🌣</div>
+							<div id="degrees">32°C</div>
+							<div id="time">14:55</div>
+							<div id="day">Domingo</div>
+							
+	         	    	</div>
+	         	    	<div class="destaque1" id="button1">opções</div>
+	         	    	<div class="destaque4" id="button2">inventário</div>
+	         	    	<div class="destaque3" id="button3">aaaa</div>
+	         	    	<div class="destaque5" id="button4">bbbbbbbbb</div>
+	         	    	<div class="destaque2" id="button5">ccccccc</div>
          	    	</div>
+         	    	<div id="sticky-window"></div>
          	    	<div id="botao-window">teste</div>
 	                <div class="event-log" id="expanded-log">
 	                	<div class="ui-header texto">Registro de eventos</div>
 						<div class="close-button" id="log-minimize">▼</div>
 	                </div>
 	                <div class="event-log" id="lower-log">
-						<img src="ui/kitty.png" class="portrait">
-						<p class="texto log-text"><a href="">Xena</a>: que infortunio! Todo o peixe acabou e vamos todos morrer de fome antes da seca</p>
+						<img src="assets/portraits/kitten.png" class="portrait">
+						<p class="texto log-text"><a>Xena</a>: que infortunio! Todo o peixe acabou e vamos todos morrer de fome antes da seca</p>
 						<div class="expand-button" id="log-expand">▲</div>
 	                </div>
+	                <div class="portrait-list" id="smaller-p-list"></div>
+	                <div class="portrait-list" id="full-p-list"></div>
             	</div>
         	</div>
        	</div>
