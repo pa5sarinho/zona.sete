@@ -22,31 +22,30 @@
         {
             width: fit-content;
         }
+
+        .importante {
+        	background-color: var(--background);
+        	color: var(--phthalo-blue);
+        }
         
-        .destaque1 
+        .destaque 
         {
             background-color: var(--phthalo-blue);
             color: var(--background);
         }
-        
-        .destaque2
-        {
-            background-color: var(--phthalo-blue);
-            color: var(--orange);
+
+        .alerta {
+           	background-color: var(--orange);
+            color: var(--auburn);
         }
         
-        .destaque3
+        .perigo
         {
             background-color: var(--auburn);
             color: var(--orange);
         }
 
-        .destaque4 {
-        	background-color: var(--orange);
-        	color: var(--auburn);
-        }
-
-        .destaque5 {
+        .destaque-light {
         	background-color: var(--pastel-blue);
         	color: var(--background);
         }
@@ -152,7 +151,7 @@
 		}
 
 		.ui-header {
-			background-image: linear-gradient(to right, var(--orange), var(--pastel-blue));
+			background-image: linear-gradient(to right, var(--pastel-blue), var(--phthalo-blue));
 			color: var(--background);
 			height: 30px;
 			width: inherit;
@@ -160,17 +159,12 @@
 
 		.game-header {
 			display: flex;
+			background-color: var(--background);
 		}
 
 		#general-info {
 			display: flex;
-			background-color: var(--background);
 			width: 540px;
-		}
-
-		#weather {
-			width: 30px;
-			text-align: center;
 		}
 
 		#degrees {
@@ -207,15 +201,26 @@
 			text-align: center;
 		}
 
-		#button4 {
-			width: 150px;
-			cursor: pointer;
+		.character-info {
 			text-align: center;
 		}
 
-		#button5 {
-			width: 150px;
-			cursor: pointer;
+		#hp-area {
+			color: var(--auburn);
+			display: flex;
+		}
+
+		#HP {
+			width: 60px;
+		}
+
+		#hunger-area {
+			display: flex;
+		}
+
+		.icone30px {
+			width: 30px;
+			height: 30px;
 			text-align: center;
 		}
 
@@ -226,9 +231,9 @@
 		#sticky-window {
 			position: absolute;
 			display: none;
-			height: 420px;
-			width: 540px;
-			top: 0px;
+			height: 390px;
+			width: 840px;
+			top: 30px;
 			right: 120px;
 			background-color: var(--background);
 		}
@@ -266,28 +271,36 @@
 			text-overflow: ellipsis;
 		}
 
-		.expand-button {
+		.expand-minimize-button {
 			height: 30px;
 			width: 30px;
 			position: absolute;
-			right: 0px;
-			bottom: 0px;
 			text-align: center;
 			cursor: pointer;
-			background-color: var(--pastel-blue);
+			background-color: var(--phthalo-blue);
 			color: var(--background);
 		}
 
-		.close-button {
-			height: 30px;
-			width: 30px;
-			position: absolute;
+		#log-minimize {
 			right: 0px;
 			top: 0px;
-			text-align: center;
-			cursor: pointer;
-			background-color: var(--pastel-blue);
-			color: var(--background);
+		}
+
+		#log-expand {
+			right: 0px;
+			bottom: 0px;
+		}
+
+		#char-expand {
+			right: 120px;
+			top: 0px;
+		}
+
+		#char-minimize {
+			display: none;
+			z-index: 2;
+			right: 120px;
+			top: 0px;
 		}
 
 		.portrait-list {
@@ -318,7 +331,7 @@
         }
 
         /* 900p */
-        @media ((min-width: 1600px) and (max-width: 1917px)) and ((min-height: 900px) and (max-height: 1079px)){
+        @media ((min-width: 1600px) and (max-width: 1860px)) or ((min-height: 900px) and (max-height: 1020px)){
             .wrapper {
                 transform: translate(-50%, -50%) scale(0.8333);
             }
@@ -336,6 +349,17 @@
                 transform: translate(-50%, -50%) scale(2);
             }
         }
+
+        #command-line {
+        	height: 30px;
+        	width: 540px;
+        	position: absolute;
+        	bottom: 30px;
+        	resize: none;
+        	background-color: var(--background);
+        	font-size: 20px;
+        	outline: none;
+        }
     </style>
     <body>
         <div class="wrapper">
@@ -344,31 +368,42 @@
          	    <div class="game-ui ui-layer" id="ui">
          	    	<div class="game-header">
 	         	    	<div id="general-info">
-							<div id="weather">🌣</div>
+							<div id="weather" class="icone30px">🌣</div>
 							<div id="degrees">32°C</div>
 							<div id="time">14:55</div>
 							<div id="day">Domingo</div>
-							
 	         	    	</div>
-	         	    	<div class="destaque1" id="button1">opções</div>
-	         	    	<div class="destaque4" id="button2">inventário</div>
-	         	    	<div class="destaque3" id="button3">aaaa</div>
-	         	    	<div class="destaque5" id="button4">bbbbbbbbb</div>
-	         	    	<div class="destaque2" id="button5">ccccccc</div>
+	         	    	<div class="destaque-light" id="button1">opções</div>
+	         	    	<div class="importante" id="button2">inventário</div>
+	         	    	<div class="destaque" id="button3">compêndio</div>
+						<div id="character-info-row">
+							<div id="hp-area">
+								<div class="icone30px character-info">♥</div>
+								<div class="character-info" id="HP"></div>
+							</div>
+							<div id="hunger-area">
+								<div class="icone 30px character-info"></div>
+								<div class="character-info" id="hunger"></div>
+							</div>
+						</div>
+						<div class="expand-minimize-button" id="char-expand">▼</div>
+						<div class="expand-minimize-button" id="char-minimize">▲</div>
          	    	</div>
          	    	<div id="sticky-window"></div>
-         	    	<div id="botao-window">teste</div>
 	                <div class="event-log" id="expanded-log">
 	                	<div class="ui-header texto">Registro de eventos</div>
-						<div class="close-button" id="log-minimize">▼</div>
+						<div class="expand-minimize-button" id="log-minimize">▼</div>
 	                </div>
 	                <div class="event-log" id="lower-log">
 						<img src="assets/portraits/kitten.png" class="portrait">
 						<p class="texto log-text"><a>Xena</a>: que infortunio! Todo o peixe acabou e vamos todos morrer de fome antes da seca</p>
-						<div class="expand-button" id="log-expand">▲</div>
+						<div class="expand-minimize-button" id="log-expand">▲</div>
 	                </div>
 	                <div class="portrait-list" id="smaller-p-list"></div>
 	                <div class="portrait-list" id="full-p-list"></div>
+            	</div>
+            	<div id="command-line-wrapper">
+					<textarea id="command-line" rows="1"></textarea>
             	</div>
         	</div>
        	</div>

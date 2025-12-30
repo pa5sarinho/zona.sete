@@ -2,24 +2,39 @@ import { Bicho } from "./objects/Bicho.js";
 import { animais } from "./objects/animais.js";
 import { Map } from "./Map.js";
 
-console.log(animais);
-
 let gato = new Bicho(animais.gato_domestico);
 let map = new Map(document.getElementById('map'), 30);
 
 const logExpandButton = document.getElementById('log-expand');
 const logMinimizeButton = document.getElementById('log-minimize');
 const expandedLog = document.getElementById('expanded-log');
-const teste = document.getElementById('botao-window');
+const charExpandButton = document.getElementById('char-expand');
+const charMinimizeButton = document.getElementById('char-minimize');
+const characterInfoWindow = document.getElementById('sticky-window');
+
+const HParea = document.getElementById('hp-area');
+const HPvalue = document.getElementById('HP');
 
 logExpandButton.onclick = expandLog;
 logMinimizeButton.onclick = minimizeLog;
-teste.onclick = function() { addWindow('window', 20, 10); }
+//teste.onclick = function() { addWindow('window', 20, 10); }
+
+charExpandButton.onclick = expandCharacterInfo;
+charMinimizeButton.onclick = minimizeCharacterInfo;
 
 let mapArray = Array.from({length: 1920}, () => Math.floor(Math.random() * 14));
-console.log(mapArray);
 
 map.draw(1800, 960, mapArray); // 60x32
+
+updateHP(100);
+
+function updateHP(newHP) {
+	let hp = newHP;
+	HPvalue.innerHTML = hp;
+	if (hp > 50) HParea.className = '';
+	else if (hp > 30) HParea.className = 'alerta';
+	else { HParea.className = 'perigo' };
+}
 
 function expandLog(event) {
 	expandedLog.style.display = 'flex';
@@ -27,6 +42,16 @@ function expandLog(event) {
 
 function minimizeLog(event) {
 	expandedLog.style.display = 'none';
+}
+
+function expandCharacterInfo(event) {
+	characterInfoWindow.style.display = 'flex';
+	charMinimizeButton.style.display = 'absolute';
+}
+
+function minimizeCharacterInfo(event) {
+	characterInfoWindow.style.display = 'none';
+	charMinimizeButton.style.display = 'flex';
 }
 
 function addWindow(name, width, height) {
@@ -45,7 +70,9 @@ function addWindow(name, width, height) {
 	windowHeader.innerHTML = name;
 	windowHeader.style.width = 'auto';
 
-	windowClose.className = 'close-button';
+	windowClose.className = 'expand-minimize-button';
+	windowClose.style.top = '0px';
+	windowClose.style.right = '0px';
 	windowClose.innerHTML = '🞫';
 	windowClose.onclick = function() {windowPopUp.remove()}
 	
