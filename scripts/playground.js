@@ -22,9 +22,12 @@ logMinimizeButton.onclick = minimizeLog;
 charExpandButton.onclick = expandCharacterInfo;
 charMinimizeButton.onclick = minimizeCharacterInfo;
 
+let walls = [0, 6, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0];
 let mapArray = Array.from({length: 1920}, () => Math.floor(Math.random() * 14));
+let wallsArray = Array.from({length: 1920}, () => walls[Math.floor(Math.random() * 12)]);
+console.log(wallsArray);
 
-map.draw(1800, 960, mapArray); // 60x32
+map.draw(1800, 960, mapArray, wallsArray); // 60x32
 
 updateHP(100);
 

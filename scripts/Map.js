@@ -6,7 +6,7 @@ export class Map
         this.gridSize = gridSize;
     }
 
-    draw(width, height, surfaceMap = [])
+    draw(width, height, surfaceMap = [], wallMap = [])
     {
         let grid_Xaxis = Math.floor(width/this.gridSize);
         let grid_Yaxis = Math.floor(height/this.gridSize);
@@ -24,13 +24,19 @@ export class Map
                 grid.style.height = this.gridSize + "px";
                 grid.style.width = this.gridSize + "px";
                 grid.id = `(${x_index}, ${y_index})`;
-                grid.style.opacity = .8;
                 
-                if (surfaceMap.length == (grid_Xaxis*grid_Yaxis))
-                {
-                	grid.style.backgroundImage = `url(../assets/map/${surfaceMap[arrayIndex]}.png)`;
+                if (wallMap[arrayIndex] > 0) {
+                	grid.style.opacity = 1;
+                	grid.style.backgroundImage = `url(../assets/map/${wallMap[arrayIndex]}.png)`;
                 }
-
+                
+                else {
+                	grid.style.opacity = .8;
+					grid.style.backgroundImage = `url(../assets/map/${surfaceMap[arrayIndex]}.png)`;
+                }
+				
+				
+				
                 grid_row.appendChild(grid);
                 arrayIndex++;
             }
