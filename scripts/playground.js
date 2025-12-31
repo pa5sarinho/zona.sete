@@ -3,7 +3,7 @@ import { animais } from "./objects/animais.js";
 import { Map } from "./Map.js";
 
 let gato = new Bicho(animais.gato_domestico);
-let map = new Map(document.getElementById('map'), 30);
+let map = new Map(document.getElementById('map'), 60);
 
 const logExpandButton = document.getElementById('log-expand');
 const logMinimizeButton = document.getElementById('log-minimize');
@@ -22,12 +22,14 @@ logMinimizeButton.onclick = minimizeLog;
 charExpandButton.onclick = expandCharacterInfo;
 charMinimizeButton.onclick = minimizeCharacterInfo;
 
-let walls = [0, 6, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0];
-let mapArray = Array.from({length: 1920}, () => Math.floor(Math.random() * 14));
-let wallsArray = Array.from({length: 1920}, () => walls[Math.floor(Math.random() * 12)]);
-console.log(wallsArray);
-
-map.draw(1800, 960, mapArray, wallsArray); // 60x32
+//let walls = [0, 6, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0];
+let arr = [];
+for (let i = 3; i < 60; i+=2) {
+	arr.push(Array.from({length: i}, () => Math.floor(Math.random() * 14)));
+}
+//let wallsArray = Array.from({length: 1920}, () => walls[Math.floor(Math.random() * 12)]);
+console.log(arr);
+map.draw(1800, 960, arr); // 60x32
 
 updateHP(100);
 
