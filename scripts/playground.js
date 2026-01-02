@@ -24,7 +24,10 @@ charMinimizeButton.onclick = minimizeCharacterInfo;
 
 //let walls = [0, 6, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0];
 let arr = [];
-for (let i = 3; i < 60; i+=2) {
+for (let i = 3; i < 53; i+=2) {
+	arr.push(Array.from({length: i}, () => Math.floor(Math.random() * 14)));
+}
+for (let i = 53; i > 0; i-=2) {
 	arr.push(Array.from({length: i}, () => Math.floor(Math.random() * 14)));
 }
 //let wallsArray = Array.from({length: 1920}, () => walls[Math.floor(Math.random() * 12)]);
