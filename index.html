@@ -105,7 +105,7 @@
         }
         
         .main-screen {
-			padding: 60px;
+			padding: 30px;
         }
         
     	.map-layer, .foreground-layer, .ui-layer {
@@ -122,6 +122,9 @@
     	    color: rgb(63, 63, 63);
     	    width: 100%;
     	    height: 100%;
+    	    display: flex;
+    	    top: 0px;
+    	    left: 0px;
     	}
 
     	.grid-row {
@@ -143,6 +146,8 @@
 
     	.grid-item:hover {
     		opacity: 1;
+    		outline: 2px solid white;
+    		transform: translateY(-2px) rotateX(60deg) rotateY(0deg) rotateZ(-45deg);
     	}
     	
         /* UI LAYER */
@@ -160,7 +165,7 @@
 		.game-header {
 			display: flex;
 			background-color: var(--background);
-			width: 1800px;
+			width: 1860px;
 		}
 
 		#general-info {
@@ -233,9 +238,9 @@
 			position: absolute;
 			display: none;
 			height: 390px;
-			width: 840px;
+			width: 900px;
 			top: 30px;
-			right: 120px;
+			right: 0px;
 			background-color: var(--background);
 		}
 
@@ -253,14 +258,14 @@
 		#lower-log {
 			display: flex;
 			height: 60px;
-			bottom: 120px;
+			bottom: -990px;
 		}
 
 		#expanded-log {
 			z-index: 2;
 			display: none;
 			height: 780px;
-			bottom: 120px;
+			bottom: -930px;
 		}
 
 		.portrait {
@@ -293,14 +298,14 @@
 		}
 
 		#char-expand {
-			right: 120px;
+			right: 0px;
 			top: 0px;
 		}
 
 		#char-minimize {
 			display: none;
 			z-index: 2;
-			right: 120px;
+			right: 0px;
 			top: 0px;
 		}
 
@@ -312,14 +317,15 @@
 
 		#smaller-p-list {
 			width: 60px;
-			bottom: 120px;
-			right: 120px;
+			bottom: -990px;
+			right: 0px;
 		}
 
 		#full-p-list {
 			width: 1200px;
-			bottom: 120px;
-			right: 180px;
+			bottom: -990px;
+			right: 60px;
+			display: none;
 		}
 
 		.solid-border {
@@ -363,7 +369,7 @@
 			bottom: 30px;
 			height: 30px;
 			width: 1800px;
-			display: flex;
+			display: none;
 		}
 
         #command-line {
@@ -379,7 +385,7 @@
         <div class="wrapper">
             <div class="main-screen">
             	<div class='map-layer' id='map'></div>
-         	    <div class="game-ui ui-layer" id="ui">
+         	    <div class="ui-layer" id="ui">
          	    	<div class="game-header">
 	         	    	<div id="general-info">
 							<div id="weather" class="icone30px">🌣</div>

@@ -5,6 +5,8 @@ import { Map } from "./Map.js";
 let gato = new Bicho(animais.gato_domestico);
 let map = new Map(document.getElementById('map'), 60);
 
+const mapLayer = document.getElementById('map');
+
 const logExpandButton = document.getElementById('log-expand');
 const logMinimizeButton = document.getElementById('log-minimize');
 const expandedLog = document.getElementById('expanded-log');
@@ -23,18 +25,28 @@ charExpandButton.onclick = expandCharacterInfo;
 charMinimizeButton.onclick = minimizeCharacterInfo;
 
 //let walls = [0, 6, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0];
+let tileCategories = ['g', 'w', 'b', 's']
 let arr = [];
-for (let i = 3; i < 53; i+=2) {
-	arr.push(Array.from({length: i}, () => Math.floor(Math.random() * 14)));
+// for (let i = 3; i < 53; i+=2) {
+// 	arr.push(Array.from({length: i}, () => tileCategories[Math.floor(Math.random() * 4)]));
+// }
+// for (let i = 53; i > 0; i-=2) {
+// 	arr.push(Array.from({length: i}, () => tileCategories[Math.floor(Math.random() * 4)]));
+// }
+for (let i = 0; i < 53; i++) {
+	arr.push(Array.from({length: 53}, () => tileCategories[Math.floor(Math.random() * 4)]))
 }
-for (let i = 53; i > 0; i-=2) {
-	arr.push(Array.from({length: i}, () => Math.floor(Math.random() * 14)));
-}
+
 //let wallsArray = Array.from({length: 1920}, () => walls[Math.floor(Math.random() * 12)]);
-console.log(arr);
-map.draw(1800, 960, arr); // 60x32
+
+map.translate(arr);
+map.draw(1800, 960); // 60x32
 
 updateHP(100);
+
+mapLayer.addEventListener('click', function(event) {
+    console.log('Mouse X:', event.clientX, 'Mouse Y:', event.clientY);
+});
 
 function updateHP(newHP) {
 	let hp = newHP;
@@ -46,20 +58,22 @@ function updateHP(newHP) {
 
 function expandLog(event) {
 	expandedLog.style.display = 'flex';
+	logExpandButton.style.display = 'none';
 }
 
 function minimizeLog(event) {
 	expandedLog.style.display = 'none';
+	logExpandButton.style.display = 'inline';
 }
 
 function expandCharacterInfo(event) {
 	characterInfoWindow.style.display = 'flex';
-	charMinimizeButton.style.display = 'absolute';
+	charMinimizeButton.style.display = 'inline';
 }
 
 function minimizeCharacterInfo(event) {
 	characterInfoWindow.style.display = 'none';
-	charMinimizeButton.style.display = 'flex';
+	charMinimizeButton.style.display = 'none';
 }
 
 function addWindow(name, width, height) {
