@@ -25,7 +25,7 @@ charExpandButton.onclick = expandCharacterInfo;
 charMinimizeButton.onclick = minimizeCharacterInfo;
 
 //let walls = [0, 6, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0];
-let tileCategories = ['g', 'w', 'b', 's']
+let tileCategories = ['g', 'w', 's']
 let arr = [];
 // for (let i = 3; i < 53; i+=2) {
 // 	arr.push(Array.from({length: i}, () => tileCategories[Math.floor(Math.random() * 4)]));
@@ -34,7 +34,7 @@ let arr = [];
 // 	arr.push(Array.from({length: i}, () => tileCategories[Math.floor(Math.random() * 4)]));
 // }
 for (let i = 0; i < 53; i++) {
-	arr.push(Array.from({length: 53}, () => tileCategories[Math.floor(Math.random() * 4)]))
+	arr.push(Array.from({length: 53}, () => tileCategories[Math.floor(Math.random() * 3)]))
 }
 
 //let wallsArray = Array.from({length: 1920}, () => walls[Math.floor(Math.random() * 12)]);

@@ -1,3 +1,5 @@
+import { tileRange } from "./objects/tilerange.js";
+
 export class Map
 {
     constructor(mapDocObject, gridSize)
@@ -18,21 +20,17 @@ export class Map
         let grid_Xaxis = Math.floor(width/this.gridSize);
         let grid_Yaxis = Math.floor(height/this.gridSize);
 
-        const tileRange = {
-        	g: [0, 1], // grass
-        	s: [6, 9], // sand
-        	b: [10, 11], // bricks
-        	w: [12, 15] // water
-        }
-
         let x = 0;
         let y = 0;
         let arrayIndex = 0;
         let decrease = 0;
+        
         let fadeDistance = (this.surfaceMap.length/3) * fade;
         let fadeIndex = 0;
         let fadeArray = [];
         let i = 0;
+        let fadeInOut = 0;
+        
         let randomTile = 0;
         let minRange = 0;
         let maxRange = 0;
@@ -43,8 +41,8 @@ export class Map
             grid_row.className = 'grid-row';
             grid_row.id = y_index;
 
-            x = this.gridWidth * y_index + this.gridWidth - 220;
-            y = (this.gridHeight/2) * y_index - 40;
+            x = this.gridWidth * y_index + this.gridWidth;
+            y = (this.gridHeight/2) * y_index;
 
             // se estiver diminuindo, reverte as posições iniciais
 			if (y_index > 0) {
@@ -53,7 +51,9 @@ export class Map
 					decrease++;
 					x -= decrease * (this.gridWidth);
 					y += decrease - (1 * decrease);
+					fadeInOut--;
 				}
+				else { fadeInOut++; }
 			}
 
             for (let x_index = 0; x_index < this.surfaceMap[y_index].length; x_index++)
@@ -63,14 +63,14 @@ export class Map
                 grid.style.height = this.gridSize + "px";
                 grid.style.width = this.gridSize + "px";
 
-				grid.style.top = y - ((this.surfaceMap[y_index].length-1)/2) * (this.gridHeight/2) + (this.gridHeight/2) * x_index;
-				grid.style.right = x - (this.gridWidth/2) * x_index;
+				grid.style.top = y - ((this.surfaceMap[y_index].length-1)/2) * (this.gridHeight/2) + (this.gridHeight/2) * x_index - 40;
+				grid.style.right = x - (this.gridWidth/2) * x_index - 220;
                 
                 grid.id = `(${x_index}, ${y_index})`;
 
                 if (x_index <= this.surfaceMap[y_index].length/2)
                 {
-                	grid.style.opacity = ((fadeDistance-(10*fade)) * fadeIndex + y_index)/100;
+                	grid.style.opacity = (fadeDistance * fadeInOut + x)/100;
                 	fadeArray.push(grid.style.opacity);
                 	fadeIndex++;
                 }
@@ -90,7 +90,7 @@ export class Map
                 grid_row.appendChild(grid);
             }
             this.mapDocObject.appendChild(grid_row);
-            //console.log(fadeArray, i);
+            console.log(fadeArray, i);
             fadeIndex /= y_index**3 + 1;
             fadeArray = [];
             i = 0;
@@ -136,8 +136,6 @@ export class Map
     		isometricMap.push(a);
     	});
     	this.surfaceMap = isometricMap;
-    	console.log(mapSection.length);
-    	console.log(isometricMap);
     	return isometricMap;
     }
 }
