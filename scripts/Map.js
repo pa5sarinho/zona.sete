@@ -14,7 +14,7 @@ export class Map
         this.gridWidth = Math.round(.5 * this.gridSize + .866025404 * this.gridSize);
     }
 
-    draw(width, height, wallMap = [], fade = 1)
+    draw(width, height, wallMap = [])
     // desenha mapa isométrico através de array 2D com formato em losango/diamante
     {
         let grid_Xaxis = Math.floor(width/this.gridSize);
@@ -24,12 +24,6 @@ export class Map
         let y = 0;
         let arrayIndex = 0;
         let decrease = 0;
-        
-        let fadeDistance = (this.surfaceMap.length/3) * fade;
-        let fadeIndex = 0;
-        let fadeArray = [];
-        let i = 0;
-        let fadeInOut = 0;
         
         let randomTile = 0;
         let minRange = 0;
@@ -51,9 +45,7 @@ export class Map
 					decrease++;
 					x -= decrease * (this.gridWidth);
 					y += decrease - (1 * decrease);
-					fadeInOut--;
 				}
-				else { fadeInOut++; }
 			}
 
             for (let x_index = 0; x_index < this.surfaceMap[y_index].length; x_index++)
@@ -62,23 +54,12 @@ export class Map
                 grid.className = 'grid-item';
                 grid.style.height = this.gridSize + "px";
                 grid.style.width = this.gridSize + "px";
+                grid.style.opacity = 0;
 
 				grid.style.top = y - ((this.surfaceMap[y_index].length-1)/2) * (this.gridHeight/2) + (this.gridHeight/2) * x_index - 40;
 				grid.style.right = x - (this.gridWidth/2) * x_index - 220;
                 
                 grid.id = `(${x_index}, ${y_index})`;
-
-                if (x_index <= this.surfaceMap[y_index].length/2)
-                {
-                	grid.style.opacity = (fadeDistance * fadeInOut + x)/100;
-                	fadeArray.push(grid.style.opacity);
-                	fadeIndex++;
-                }
-                else { 
-                	i++;
-                	grid.style.opacity = fadeArray[fadeArray.length-i];
-                	fadeIndex--;
-                }
 
                 // escolhe um tile aleatorio pra cada categoria de chão
 
@@ -90,10 +71,6 @@ export class Map
                 grid_row.appendChild(grid);
             }
             this.mapDocObject.appendChild(grid_row);
-            console.log(fadeArray, i);
-            fadeIndex /= y_index**3 + 1;
-            fadeArray = [];
-            i = 0;
         }
     }
 
@@ -137,5 +114,66 @@ export class Map
     	});
     	this.surfaceMap = isometricMap;
     	return isometricMap;
+    }
+
+    addEffect(posX, posY, coreRadius, endRadius, effect, intensity = 4)
+    // posicao xy de onde o efeito inicia, raio do efeito maximo, raio onde o efeito para,
+    // tipo do efeito e intensidade de evolução
+    {
+    	if (effect == "fog")
+    	{
+    		document.getElementById(`(${posX}, ${posY})`).style.opacity = 1;
+    	}
+		for (let i = 1; i <= endRadius; i++)
+    	{
+    		try 
+    		{
+	    		if (effect == "fog")
+		    	{
+		    		// north
+		    		document.getElementById(`(${posX-i}, ${posY-i})`).style.opacity = 1-((i-1)/(endRadius-1))**(intensity/2);
+		    		// south
+		    		document.getElementById(`(${posX-i}, ${posY+i})`).style.opacity = 1-((i-1)/(endRadius-1))**(intensity/2);
+		    		// east
+		    		document.getElementById(`(${posX+i}, ${posY})`).style.opacity = 1-((i-1)/(endRadius-1))**(intensity/2);
+		    		// west
+		    		document.getElementById(`(${posX-i}, ${posY})`).style.opacity = 1-((i-1)/(endRadius-1))**(intensity/2);
+		    		for (let j = 1; j <= endRadius-(i*i/endRadius); j++)
+		    		{
+		    			document.getElementById(`(${posX-i-j}, ${posY-i})`).style.opacity = 1-((i-1)/(endRadius-1))**((intensity)/2) - ((j-1)/(endRadius-1))**(intensity);
+		    			document.getElementById(`(${posX-i+j}, ${posY-i})`).style.opacity = 1-((i-1)/(endRadius-1))**((intensity)/2) - ((j-1)/(endRadius-1))**(intensity);
+		    			document.getElementById(`(${posX-i-j}, ${posY+i})`).style.opacity = 1-((i-1)/(endRadius-1))**((intensity)/2) - ((j-1)/(endRadius-1))**(intensity);
+		    			document.getElementById(`(${posX-i+j}, ${posY+i})`).style.opacity = 1-((i-1)/(endRadius-1))**((intensity)/2) - ((j-1)/(endRadius-1))**(intensity);
+		    		}
+		    	}
+    		}
+    		catch(e) {
+    			console.log(e, 'tried accessing out of bounds position ', posX, posY);	
+    		}
+    	}
+    	for (let i = 1; i <= coreRadius; i++)
+   		{
+   		    try 
+   		    {
+				// north
+	    		document.getElementById(`(${posX-i}, ${posY-i})`).style.opacity = 1;
+	    		// south
+	    		document.getElementById(`(${posX-i}, ${posY+i})`).style.opacity = 1;
+	    		// east
+	    		document.getElementById(`(${posX+i}, ${posY})`).style.opacity = 1;
+	    		// west
+	    		document.getElementById(`(${posX-i}, ${posY})`).style.opacity = 1;
+	    		for (let j = 1; j <= coreRadius-(i*i/15); j++)
+	    		{
+	    			document.getElementById(`(${posX-i-j}, ${posY-i})`).style.opacity = 1;
+	    			document.getElementById(`(${posX-i+j}, ${posY-i})`).style.opacity = 1;
+	    			document.getElementById(`(${posX-i-j}, ${posY+i})`).style.opacity = 1;
+	    			document.getElementById(`(${posX-i+j}, ${posY+i})`).style.opacity = 1;
+	    		}
+    		}
+    		catch(e) {
+    			console.log(e, 'tried accessing out of bounds position ', posX, posY);	
+    		}
+   		}
     }
 }
