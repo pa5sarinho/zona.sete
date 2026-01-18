@@ -117,63 +117,108 @@ export class Map
     }
 
     addEffect(posX, posY, coreRadius, endRadius, effect, intensity = 4)
-    // posicao xy de onde o efeito inicia, raio do efeito maximo, raio onde o efeito para,
-    // tipo do efeito e intensidade de evolução
+    // posX, posY: posicao xy de onde o efeito inicia
+    // coreRadius, endRadius: raio limite do efeito maximo, raio até onde o efeito diminui
+    // effect: tipo do efeito
+    // intensity: intensidade de evolução (valores maiores demoram mais para diminuir)
     {
     	if (effect == "fog")
     	{
     		document.getElementById(`(${posX}, ${posY})`).style.opacity = 1;
     	}
-		for (let i = 1; i <= endRadius; i++)
+
+    	// raio de efeito que sofre com a diminuição do mesmo, passar 0 se nao for usar
+    	if (endRadius > 0)
     	{
-    		try 
-    		{
-	    		if (effect == "fog")
-		    	{
-		    		// north
-		    		document.getElementById(`(${posX-i}, ${posY-i})`).style.opacity = 1-((i-1)/(endRadius-1))**(intensity/2);
-		    		// south
-		    		document.getElementById(`(${posX-i}, ${posY+i})`).style.opacity = 1-((i-1)/(endRadius-1))**(intensity/2);
-		    		// east
-		    		document.getElementById(`(${posX+i}, ${posY})`).style.opacity = 1-((i-1)/(endRadius-1))**(intensity/2);
-		    		// west
-		    		document.getElementById(`(${posX-i}, ${posY})`).style.opacity = 1-((i-1)/(endRadius-1))**(intensity/2);
-		    		for (let j = 1; j <= endRadius-(i*i/endRadius); j++)
-		    		{
-		    			document.getElementById(`(${posX-i-j}, ${posY-i})`).style.opacity = 1-((i-1)/(endRadius-1))**((intensity)/2) - ((j-1)/(endRadius-1))**(intensity);
-		    			document.getElementById(`(${posX-i+j}, ${posY-i})`).style.opacity = 1-((i-1)/(endRadius-1))**((intensity)/2) - ((j-1)/(endRadius-1))**(intensity);
-		    			document.getElementById(`(${posX-i-j}, ${posY+i})`).style.opacity = 1-((i-1)/(endRadius-1))**((intensity)/2) - ((j-1)/(endRadius-1))**(intensity);
-		    			document.getElementById(`(${posX-i+j}, ${posY+i})`).style.opacity = 1-((i-1)/(endRadius-1))**((intensity)/2) - ((j-1)/(endRadius-1))**(intensity);
-		    		}
-		    	}
-    		}
-    		catch(e) {
-    			console.log(e, 'tried accessing out of bounds position ', posX, posY);	
-    		}
-    	}
-    	for (let i = 1; i <= coreRadius; i++)
-   		{
-   		    try 
-   		    {
-				// north
-	    		document.getElementById(`(${posX-i}, ${posY-i})`).style.opacity = 1;
-	    		// south
-	    		document.getElementById(`(${posX-i}, ${posY+i})`).style.opacity = 1;
-	    		// east
-	    		document.getElementById(`(${posX+i}, ${posY})`).style.opacity = 1;
-	    		// west
-	    		document.getElementById(`(${posX-i}, ${posY})`).style.opacity = 1;
-	    		for (let j = 1; j <= coreRadius-(i*i/15); j++)
+    		let x = 0;
+		    let y = 0;
+		    let t = 0;
+		    
+			for (let i = 1; i <= endRadius; i++)
+	    	{
+	    		let outerEffectMath = 1-((i-1)/(endRadius-1))**(intensity/2);
+	    		try 
 	    		{
-	    			document.getElementById(`(${posX-i-j}, ${posY-i})`).style.opacity = 1;
-	    			document.getElementById(`(${posX-i+j}, ${posY-i})`).style.opacity = 1;
-	    			document.getElementById(`(${posX-i-j}, ${posY+i})`).style.opacity = 1;
-	    			document.getElementById(`(${posX-i+j}, ${posY+i})`).style.opacity = 1;
+		    		if (effect == "fog")
+			    	{
+			    		if (posY-i >= Math.floor(this.surfaceMap.length/2)) x = i+i;
+		   		    	if (posY+i <= Math.floor(this.surfaceMap.length/2)) y = i+i;
+		   		    	else {
+		   		    		if (y != 0)
+		   		    		{
+		   		    			if (t == 0) t = (i-1);
+		   		    			y = t*2;	
+		   		    			console.log(i, y);
+		   		    		}
+		   		    	}
+			    		// north
+			    		document.getElementById(`(${posX-i+x}, ${posY-i})`).style.opacity = outerEffectMath;
+			    		// south
+			    		document.getElementById(`(${posX-i+y}, ${posY+i})`).style.opacity = outerEffectMath;
+			    		// east
+			    		document.getElementById(`(${posX+i}, ${posY})`).style.opacity = outerEffectMath;
+			    		// west
+			    		document.getElementById(`(${posX-i}, ${posY})`).style.opacity = outerEffectMath;
+
+			    		//preenchimento da cruz
+			    		for (let j = 1; j <= endRadius-(i*i/endRadius); j++)
+			    		{
+			    			document.getElementById(`(${posX-i-j+x}, ${posY-i})`).style.opacity = outerEffectMath - ((j-1)/(endRadius-1))**(intensity);
+			    			document.getElementById(`(${posX-i+j+x}, ${posY-i})`).style.opacity = outerEffectMath - ((j-1)/(endRadius-1))**(intensity);
+			    			document.getElementById(`(${posX-i-j+y}, ${posY+i})`).style.opacity = outerEffectMath - ((j-1)/(endRadius-1))**(intensity);
+			    			document.getElementById(`(${posX-i+j+y}, ${posY+i})`).style.opacity = outerEffectMath - ((j-1)/(endRadius-1))**(intensity);
+			    		}
+			    	}
 	    		}
-    		}
-    		catch(e) {
-    			console.log(e, 'tried accessing out of bounds position ', posX, posY);	
-    		}
-   		}
+	    		catch(e) {
+	    			console.log('tried applying effect on out of bounds position', i, 'tiles from', posX, posY);	
+	    		}
+	    	}
+	    }
+
+	    // raio de efeito que mantem a mesma intensidade em todo terreno, passar 0 se nao for usar
+		if (coreRadius > 0)
+		{
+		    let x = 0;
+		    let y = 0;
+		    let t = 0;
+		    
+	    	for (let i = 1; i <= coreRadius; i++)
+	   		{
+	   		    try 
+	   		    {
+	   		    	if (posY-i >= Math.floor(this.surfaceMap.length/2)) x = i+i;
+	   		    	if (posY+i <= Math.floor(this.surfaceMap.length/2)) y = i+i;
+	   		    	else {
+	   		    		if (y != 0)
+	   		    		{
+	   		    			if (t == 0) t = (i-1);
+	   		    			y = t*2;	
+	   		    			console.log(i, y);
+	   		    		}
+	   		    	}
+					// north
+		    		document.getElementById(`(${posX-i+x}, ${posY-i})`).style.opacity = 1;
+		    		// south
+		    		document.getElementById(`(${posX-i+y}, ${posY+i})`).style.opacity = 1;
+		    		// east
+		    		document.getElementById(`(${posX+i}, ${posY})`).style.opacity = 1;
+		    		// west
+		    		document.getElementById(`(${posX-i}, ${posY})`).style.opacity = 1;
+
+		    		//preenchimento da cruz
+		    		for (let j = 1; j <= coreRadius-(i*i/15); j++)
+		    		{
+		    			document.getElementById(`(${posX - i - j + x}, ${posY-i})`).style.opacity = 1;
+		    			document.getElementById(`(${posX - i + j + x}, ${posY-i})`).style.opacity = 1;
+		    			document.getElementById(`(${posX - i - j + y}, ${posY+i})`).style.opacity = 1;
+		    			document.getElementById(`(${posX - i + j + y}, ${posY+i})`).style.opacity = 1;
+		    		}
+	    		}
+	    		catch(e) {
+	    			console.log('tried applying effect on out of bounds position', i, 'tiles from', posX, posY);
+	    		}
+	   		}
+	   	}
     }
 }

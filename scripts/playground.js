@@ -41,7 +41,7 @@ for (let i = 0; i < 53; i++) {
 
 map.translate(arr);
 map.draw(1800, 960); // 60x32
-map.addEffect(26, 26, 3, 6, "fog", 3);
+map.addEffect(26, 27, 0, 20, "fog", 5);
 
 updateHP(100);
 
