@@ -54,7 +54,7 @@ export class Map
                 grid.className = 'grid-item';
                 grid.style.height = this.gridSize + "px";
                 grid.style.width = this.gridSize + "px";
-                grid.style.opacity = 0;
+                //grid.style.filter = "brightness(0.15)";
 
 				grid.style.top = y - ((this.surfaceMap[y_index].length-1)/2) * (this.gridHeight/2) + (this.gridHeight/2) * x_index - 40;
 				grid.style.right = x - (this.gridWidth/2) * x_index - 220;
@@ -116,15 +116,20 @@ export class Map
     	return isometricMap;
     }
 
-    addEffect(posX, posY, coreRadius, endRadius, effect, intensity = 4)
+    addEffect(posX, posY, coreRadius, endRadius, effect, intensity = 4, luminosity = 1)
     // posX, posY: posicao xy de onde o efeito inicia
     // coreRadius, endRadius: raio limite do efeito maximo, raio até onde o efeito diminui
     // effect: tipo do efeito
     // intensity: intensidade de evolução (valores maiores demoram mais para diminuir)
+    // luminosity: (para brightness) valores entre 0 e 1 são luzes fracas, valores entre 1 e 2 são luzes muito fortes
     {
     	if (effect == "fog")
     	{
     		document.getElementById(`(${posX}, ${posY})`).style.opacity = 1;
+    	}
+    	else if (effect == "brightness")
+    	{
+    		document.getElementById(`(${posX}, ${posY})`).style.filter = `brightness(${luminosity})`;
     	}
 
     	// raio de efeito que sofre com a diminuição do mesmo, passar 0 se nao for usar
@@ -139,18 +144,20 @@ export class Map
 	    		let outerEffectMath = 1-((i-1)/(endRadius-1))**(intensity/2);
 	    		try 
 	    		{
+	    			if (posY-i >= Math.floor(this.surfaceMap.length/2)) x = i+i;
+	   		    	if (posY+i <= Math.floor(this.surfaceMap.length/2)) y = i+i;
+	   		    	else {
+	   		    		if (y != 0)
+	   		    		{
+	   		    			if (t == 0) t = (i-1);
+	   		    			y = t*2;	
+	   		    			console.log(i, y);
+	   		    		}
+	   		    	}
+	   		    	
 		    		if (effect == "fog")
 			    	{
-			    		if (posY-i >= Math.floor(this.surfaceMap.length/2)) x = i+i;
-		   		    	if (posY+i <= Math.floor(this.surfaceMap.length/2)) y = i+i;
-		   		    	else {
-		   		    		if (y != 0)
-		   		    		{
-		   		    			if (t == 0) t = (i-1);
-		   		    			y = t*2;	
-		   		    			console.log(i, y);
-		   		    		}
-		   		    	}
+			    		
 			    		// north
 			    		document.getElementById(`(${posX-i+x}, ${posY-i})`).style.opacity = outerEffectMath;
 			    		// south
@@ -169,6 +176,29 @@ export class Map
 			    			document.getElementById(`(${posX-i+j+y}, ${posY+i})`).style.opacity = outerEffectMath - ((j-1)/(endRadius-1))**(intensity);
 			    		}
 			    	}
+			    	
+			    	else if (effect == "brightness")
+			    	{
+			    		// north
+			    		document.getElementById(`(${posX-i+x}, ${posY-i})`).style.filter = `brightness(${outerEffectMath * luminosity})`;
+			    		// south
+			    		document.getElementById(`(${posX-i+y}, ${posY+i})`).style.filter = `brightness(${outerEffectMath * luminosity})`;
+			    		// east
+			    		document.getElementById(`(${posX+i}, ${posY})`).style.filter = `brightness(${outerEffectMath * luminosity})`;
+			    		// west
+			    		document.getElementById(`(${posX-i}, ${posY})`).style.filter = `brightness(${outerEffectMath * luminosity})`;
+
+			    		//preenchimento da cruz
+			    		for (let j = 1; j <= endRadius-(i*i/endRadius); j++)
+			    		{
+			    			document.getElementById(`(${posX-i-j+x}, ${posY-i})`).style.filter = `brightness(${(outerEffectMath * luminosity) - ((j-1)/(endRadius-1))**(intensity)}`;
+			    			document.getElementById(`(${posX-i+j+x}, ${posY-i})`).style.filter = `brightness(${(outerEffectMath * luminosity) - ((j-1)/(endRadius-1))**(intensity)}`;
+			    			document.getElementById(`(${posX-i-j+y}, ${posY+i})`).style.filter = `brightness(${(outerEffectMath * luminosity) - ((j-1)/(endRadius-1))**(intensity)}`;
+			    			document.getElementById(`(${posX-i+j+y}, ${posY+i})`).style.filter = `brightness(${(outerEffectMath * luminosity) - ((j-1)/(endRadius-1))**(intensity)}`;
+			    		}
+			    	}
+
+			    	else { console.log('nenhum efeito foi aplicado'); }
 	    		}
 	    		catch(e) {
 	    			console.log('tried applying effect on out of bounds position', i, 'tiles from', posX, posY);	
@@ -197,23 +227,48 @@ export class Map
 	   		    			console.log(i, y);
 	   		    		}
 	   		    	}
-					// north
-		    		document.getElementById(`(${posX-i+x}, ${posY-i})`).style.opacity = 1;
-		    		// south
-		    		document.getElementById(`(${posX-i+y}, ${posY+i})`).style.opacity = 1;
-		    		// east
-		    		document.getElementById(`(${posX+i}, ${posY})`).style.opacity = 1;
-		    		// west
-		    		document.getElementById(`(${posX-i}, ${posY})`).style.opacity = 1;
 
-		    		//preenchimento da cruz
-		    		for (let j = 1; j <= coreRadius-(i*i/15); j++)
-		    		{
-		    			document.getElementById(`(${posX - i - j + x}, ${posY-i})`).style.opacity = 1;
-		    			document.getElementById(`(${posX - i + j + x}, ${posY-i})`).style.opacity = 1;
-		    			document.getElementById(`(${posX - i - j + y}, ${posY+i})`).style.opacity = 1;
-		    			document.getElementById(`(${posX - i + j + y}, ${posY+i})`).style.opacity = 1;
-		    		}
+	   		    	if (effect == "fog")
+	   		    	{
+						// north
+			    		document.getElementById(`(${posX-i+x}, ${posY-i})`).style.opacity = 1;
+			    		// south
+			    		document.getElementById(`(${posX-i+y}, ${posY+i})`).style.opacity = 1;
+			    		// east
+			    		document.getElementById(`(${posX+i}, ${posY})`).style.opacity = 1;
+			    		// west
+			    		document.getElementById(`(${posX-i}, ${posY})`).style.opacity = 1;
+
+			    		//preenchimento da cruz
+			    		for (let j = 1; j <= coreRadius-(i*i/15); j++)
+			    		{
+			    			document.getElementById(`(${posX - i - j + x}, ${posY-i})`).style.opacity = 1;
+			    			document.getElementById(`(${posX - i + j + x}, ${posY-i})`).style.opacity = 1;
+			    			document.getElementById(`(${posX - i - j + y}, ${posY+i})`).style.opacity = 1;
+			    			document.getElementById(`(${posX - i + j + y}, ${posY+i})`).style.opacity = 1;
+			    		}
+	   		    	}
+
+	   		    	else if (effect == "brightness")
+	   		    	{
+	   		    		// north
+			    		document.getElementById(`(${posX-i+x}, ${posY-i})`).style.filter = `brightness(${luminosity})`;
+			    		// south
+			    		document.getElementById(`(${posX-i+y}, ${posY+i})`).style.filter = `brightness(${luminosity})`;
+			    		// east
+			    		document.getElementById(`(${posX+i}, ${posY})`).style.filter = `brightness(${luminosity})`;
+			    		// west
+			    		document.getElementById(`(${posX-i}, ${posY})`).style.filter = `brightness(${luminosity})`;
+
+			    		//preenchimento da cruz
+			    		for (let j = 1; j <= coreRadius-(i*i/15); j++)
+			    		{
+			    			document.getElementById(`(${posX - i - j + x}, ${posY-i})`).style.filter = `brightness(${luminosity})`;
+			    			document.getElementById(`(${posX - i + j + x}, ${posY-i})`).style.filter = `brightness(${luminosity})`;
+			    			document.getElementById(`(${posX - i - j + y}, ${posY+i})`).style.filter = `brightness(${luminosity})`;
+			    			document.getElementById(`(${posX - i + j + y}, ${posY+i})`).style.filter = `brightness(${luminosity})`;
+			    		}
+	   		    	}
 	    		}
 	    		catch(e) {
 	    			console.log('tried applying effect on out of bounds position', i, 'tiles from', posX, posY);

@@ -110,7 +110,7 @@
 			padding: 30px;
         }
         
-    	.map-layer, .foreground-layer, .ui-layer {
+    	.map-layer, .foreground-layer, .simulation-layer, .ui-layer {
     	    position: absolute;
     	    align-items: center;
     	    justify-content: center;
@@ -151,6 +151,15 @@
     		outline: 2px solid white;
     		transform: translateY(-2px) rotateX(60deg) rotateY(0deg) rotateZ(-45deg);
     	}
+
+    	.click-item {
+    	    display: flex;
+    	    position: absolute;
+    	    align-items: center;
+    	    justify-content: center;
+    	    background-size: cover;
+    	    transform: rotateX(60deg) rotateY(0deg) rotateZ(-45deg);
+    	}
     	
         /* UI LAYER */
 		.ui-layer {
@@ -158,10 +167,11 @@
 		}
 
 		.ui-header {
-			background-image: linear-gradient(to right, var(--pastel-blue), var(--phthalo-blue));
+			background-image: linear-gradient(to right, var(--phthalo-blue), var(--pastel-blue));
 			color: var(--background);
 			height: 30px;
 			width: inherit;
+			padding: 0 10px 0 10px;
 		}
 
 		.game-header {
@@ -249,6 +259,29 @@
 		#window-popup {
 			z-index: 3;
 			background-color: var(--background);
+			border: 4px double var(--phthalo-blue);
+		}
+
+		.drop-down-menu {
+			z-index = 3;
+			position: absolute;
+			background-color: var(--phthalo-blue);
+			border: 4px double var(--phthalo-blue);
+		}
+
+		.drop-down-menu-item {
+			padding: 0 0 0 5px;
+			overflow-wrap: break-word;
+			color: var(--background);
+		}
+
+		.drop-down-menu-item:hover {
+			background-color: var(--background);
+			color: var(--phthalo-blue);
+		}
+
+		.drop-down-menu-item:not(:last-child) {
+			border-bottom: 1px solid var(--pastel-blue); 
 		}
 
 		.event-log {
@@ -289,6 +322,10 @@
 			color: var(--background);
 		}
 
+		.close-button {
+			background-color: var(--auburn);
+		}
+
 		#log-minimize {
 			right: 0px;
 			top: 0px;
@@ -314,20 +351,28 @@
 		.portrait-list {
 			display: flex;
 			position: absolute;
-			height: 540px;
 		}
 
 		#smaller-p-list {
-			width: 60px;
+			height: 60px;
 			bottom: -990px;
-			right: 0px;
+			right: 60px;
+			width: 1260px;
 		}
 
 		#full-p-list {
-			width: 1200px;
-			bottom: -990px;
-			right: 60px;
+			bottom: -930px;
+			right: 0px;
 			display: none;
+			height: 540px;
+			width: 1320px;
+		}
+
+		#group-expand {
+			bottom: -990px;
+			right: 0px;
+			height: 60px;
+			width: 60px;
 		}
 
 		.solid-border {
@@ -422,6 +467,7 @@
 						<div class="expand-minimize-button" id="log-expand">▲</div>
 	                </div>
 	                <div class="portrait-list" id="smaller-p-list"></div>
+	                <div class="expand-minimize-button" id="group-expand">...</div>
 	                <div class="portrait-list" id="full-p-list"></div>
             	</div>
             	<div id="command-line-wrapper">

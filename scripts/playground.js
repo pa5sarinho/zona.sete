@@ -1,9 +1,14 @@
 import { Bicho } from "./objects/Bicho.js";
 import { animais } from "./objects/animais.js";
 import { Map } from "./Map.js";
+import { DropDownMenu, PopUpWindow } from "./ui.js";
 
 let gato = new Bicho(animais.gato_domestico);
 let map = new Map(document.getElementById('map'), 60);
+
+let popUp = new PopUpWindow('bem vindo à zona 7', 21, 7);
+popUp.html = "<p>Este jogo é melhor jogado com a tela do navegador cheia. Entre no modo tela cheia com F11!</p><a id='guide-href'>É novato? Veja o guia rápido aqui</a>";
+popUp.draw();
 
 const mapLayer = document.getElementById('map');
 
@@ -17,12 +22,18 @@ const characterInfoWindow = document.getElementById('sticky-window');
 const HParea = document.getElementById('hp-area');
 const HPvalue = document.getElementById('HP');
 
+const guideHref = document.getElementById('guide-href');
+
+let menu = 0;
+
 logExpandButton.onclick = expandLog;
 logMinimizeButton.onclick = minimizeLog;
 //teste.onclick = function() { addWindow('window', 20, 10); }
 
 charExpandButton.onclick = expandCharacterInfo;
 charMinimizeButton.onclick = minimizeCharacterInfo;
+
+guideHref.onclick = openGuideWindow;
 
 //let walls = [0, 6, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0];
 let tileCategories = ['g', 'w', 's']
@@ -41,13 +52,40 @@ for (let i = 0; i < 53; i++) {
 
 map.translate(arr);
 map.draw(1800, 960); // 60x32
-map.addEffect(26, 27, 0, 20, "fog", 5);
+//map.addEffect(26, 27, 6, 12, "brightness", 3);
 
 updateHP(100);
 
+let choices = ["correr até aqui", "construir...", "cavar"];
+
+// gere todos os cliques com o botão esquerdo no mapa
 mapLayer.addEventListener('click', function(event) {
     console.log('Mouse X:', event.clientX, 'Mouse Y:', event.clientY);
+    if (menu !== 0)
+    {
+    	menu.destroy();
+    	menu = 0;
+    }
+    else
+    {
+	    menu = new DropDownMenu(event.clientX, event.clientY, choices);
+	    menu.draw();
+    }
 });
+
+// gere todos os cliques com o botão direito no mapa
+mapLayer.addEventListener('contextmenu', function(event) {
+	let bluedot = document.createElement('img');
+    bluedot.style.left = event.clientX - 30;
+    bluedot.style.top = event.clientY - 30;
+    bluedot.className = 'click-item';
+    bluedot.src = "../assets/map/blue_circle.gif";
+    bluedot.addEventListener("mouseout", () => {
+    	bluedot.remove();
+    });
+    event.preventDefault();
+    mapLayer.appendChild(bluedot);
+})
 
 function updateHP(newHP) {
 	let hp = newHP;
@@ -77,29 +115,8 @@ function minimizeCharacterInfo(event) {
 	charMinimizeButton.style.display = 'none';
 }
 
-function addWindow(name, width, height) {
-	const windowPopUp = document.createElement('div');
-	const windowHeader = document.createElement('div');
-	const windowClose = document.createElement('div');
-	
-	windowPopUp.className = 'ui-layer';
-	windowPopUp.id = 'window-popup';
-	windowPopUp.style.width = width*30;
-	windowPopUp.style.height= height*30;
-	windowPopUp.style.right = ((60-width)/2)*30 + 120;
-	windowPopUp.style.bottom = ((32-height)/2)*30 + 120;
-	
-	windowHeader.className = 'ui-header texto';
-	windowHeader.innerHTML = name;
-	windowHeader.style.width = 'auto';
-
-	windowClose.className = 'expand-minimize-button';
-	windowClose.style.top = '0px';
-	windowClose.style.right = '0px';
-	windowClose.innerHTML = '🞫';
-	windowClose.onclick = function() {windowPopUp.remove()}
-	
-	document.getElementById('ui').appendChild(windowPopUp);
-	windowPopUp.appendChild(windowHeader);
-	windowPopUp.appendChild(windowClose);
+function openGuideWindow() {
+	let guideWindow = new PopUpWindow('Noções básicas para começar', 45, 27);
+	guideWindow.html = "alguns textos q vou escrever muito depois...";
+	guideWindow.draw();
 }
