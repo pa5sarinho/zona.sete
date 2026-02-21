@@ -5,7 +5,7 @@ export class Map
     constructor(mapDocObject, gridSize)
     {
         this.mapDocObject = mapDocObject;
-        this.gridSize = gridSize;
+        this.gridSize = gridSize; // gridSize é exatamente os centímetros dos lados no mundo
         this.surfaceMap = [];
 
         // calculando altura com 45 graus de rotação e hipotenusa gridSize

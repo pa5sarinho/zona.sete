@@ -4,12 +4,13 @@ import { Map } from "./Map.js";
 import { DropDownMenu, PopUpWindow } from "./ui.js";
 
 let gato = new Bicho(animais.gato_domestico);
-let map = new Map(document.getElementById('map'), 60);
+let map = new Map(document.getElementById('map'), 45);
 
 let popUp = new PopUpWindow('bem vindo à zona 7', 21, 7);
 popUp.html = "<p>Este jogo é melhor jogado com a tela do navegador cheia. Entre no modo tela cheia com F11!</p><a id='guide-href'>É novato? Veja o guia rápido aqui</a>";
 popUp.draw();
 
+let menu = 0;
 const mapLayer = document.getElementById('map');
 
 const logExpandButton = document.getElementById('log-expand');
@@ -23,8 +24,6 @@ const HParea = document.getElementById('hp-area');
 const HPvalue = document.getElementById('HP');
 
 const guideHref = document.getElementById('guide-href');
-
-let menu = 0;
 
 logExpandButton.onclick = expandLog;
 logMinimizeButton.onclick = minimizeLog;
@@ -44,8 +43,8 @@ let arr = [];
 // for (let i = 53; i > 0; i-=2) {
 // 	arr.push(Array.from({length: i}, () => tileCategories[Math.floor(Math.random() * 4)]));
 // }
-for (let i = 0; i < 53; i++) {
-	arr.push(Array.from({length: 53}, () => tileCategories[Math.floor(Math.random() * 3)]))
+for (let i = 0; i < 73; i++) {
+	arr.push(Array.from({length: 73}, () => tileCategories[Math.floor(Math.random() * 3)]))
 }
 
 //let wallsArray = Array.from({length: 1920}, () => walls[Math.floor(Math.random() * 12)]);
@@ -56,15 +55,20 @@ map.draw(1800, 960); // 60x32
 
 updateHP(100);
 
-let choices = ["correr até aqui", "construir...", "cavar"];
+let choices = 
+{
+	run: "correr até aqui",
+	build: "construir...",
+	dig: "cavar"
+}
+
 
 // gere todos os cliques com o botão esquerdo no mapa
 mapLayer.addEventListener('click', function(event) {
     console.log('Mouse X:', event.clientX, 'Mouse Y:', event.clientY);
-    if (menu !== 0)
+    if (document.getElementById('open-drop-down-menu'))
     {
     	menu.destroy();
-    	menu = 0;
     }
     else
     {
@@ -79,7 +83,8 @@ mapLayer.addEventListener('contextmenu', function(event) {
     bluedot.style.left = event.clientX - 30;
     bluedot.style.top = event.clientY - 30;
     bluedot.className = 'click-item';
-    bluedot.src = "../assets/map/blue_circle.gif";
+    //bluedot.src = "../assets/map/blue_circle.gif";
+    bluedot.src = "../assets/sprites/PC.gif";
     bluedot.addEventListener("mouseout", () => {
     	bluedot.remove();
     });

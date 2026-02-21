@@ -14,6 +14,7 @@ export class DropDownMenu
 		const ddMenu = document.createElement('div');
 		let x = 0;
 		let y = 0;
+		let idx = 0;
 
 		if (this.posy > window.screen.availHeight - this.choiceList.length * 30) y = window.screen.availHeight - this.choiceList.length * 30;
 		else {y = this.posy - 40}
@@ -31,12 +32,23 @@ export class DropDownMenu
 		this.choiceList.forEach((element) => {
 			let c = document.createElement('div');
 			c.className = "drop-down-menu-item";
-			c.id = element;
+			c.id = `dd-choice-${idx}`;
 			c.innerHTML = element;
 			ddMenu.appendChild(c);
+			idx++;
 		})
 
 		ui.appendChild(ddMenu);
+
+		for (let i = 0; i < idx; i++)
+		{
+			let c = document.getElementById(`dd-choice-${i}`);
+			c.onclick = function()
+			{
+				this.destroy;
+				// chamar funcao de actions	
+			} 
+		}
 	}
 
 	destroy()
