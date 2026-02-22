@@ -1,7 +1,7 @@
 import { Bicho } from "./objects/Bicho.js";
 import { animais } from "./objects/animais.js";
 import { Map } from "./Map.js";
-import { DropDownMenu, PopUpWindow } from "./ui.js";
+import { DropDownMenu, PopUpWindow, screenToCanvas } from "./ui.js";
 
 let gato = new Bicho(animais.gato_domestico);
 let map = new Map(document.getElementById('map'), 45);
@@ -56,11 +56,9 @@ map.draw(1800, 960); // 60x32
 updateHP(100);
 
 let choices = 
-{
-	run: "correr até aqui",
-	build: "construir...",
-	dig: "cavar"
-}
+[
+	"run", "dig", "build"
+]
 
 
 // gere todos os cliques com o botão esquerdo no mapa
@@ -72,7 +70,8 @@ mapLayer.addEventListener('click', function(event) {
     }
     else
     {
-	    menu = new DropDownMenu(event.clientX, event.clientY, choices);
+		const canvasPos = screenToCanvas(event);
+	    menu = new DropDownMenu(canvasPos.x, canvasPos.y, choices);
 	    menu.draw();
     }
 });
@@ -80,8 +79,9 @@ mapLayer.addEventListener('click', function(event) {
 // gere todos os cliques com o botão direito no mapa
 mapLayer.addEventListener('contextmenu', function(event) {
 	let bluedot = document.createElement('img');
-    bluedot.style.left = event.clientX - 30;
-    bluedot.style.top = event.clientY - 30;
+	const canvasPos = screenToCanvas(event);
+    bluedot.style.left = canvasPos.x - 30;
+    bluedot.style.top = canvasPos.y - 30;
     bluedot.className = 'click-item';
     //bluedot.src = "../assets/map/blue_circle.gif";
     bluedot.src = "../assets/sprites/PC.gif";
@@ -91,6 +91,8 @@ mapLayer.addEventListener('contextmenu', function(event) {
     event.preventDefault();
     mapLayer.appendChild(bluedot);
 })
+
+
 
 function updateHP(newHP) {
 	let hp = newHP;

@@ -12,12 +12,12 @@
 		:root {
 		  --background: #FDF9ED;
 		  --foreground: #0e0e0e;
-		  --phthalo-blue: #01178e;
-		  --auburn: #992e2e;
-		  --orange: #F2854A;
-		  --pastel-blue: #5986b2;
-		  --bright-indigo: #0145f2;
-		  --platinum: #EDF1F5;
+		  --supporting-color: #01178e;
+		  --danger: #992e2e;
+		  --caution: #F2854A;
+		  --pastel-supporting-color: #5986b2;
+		  --bright-supporting-color: #0145f2;
+		  --cool-background: #EDF1F5;
 		}
     
         h2, h3
@@ -27,28 +27,28 @@
 
         .importante {
         	background-color: var(--background);
-        	color: var(--phthalo-blue);
+        	color: var(--supporting-color);
         }
         
         .destaque 
         {
-            background-color: var(--phthalo-blue);
+            background-color: var(--supporting-color);
             color: var(--background);
         }
 
         .alerta {
-           	background-color: var(--orange);
-            color: var(--auburn);
+           	background-color: var(--caution);
+            color: var(--danger);
         }
         
         .perigo
         {
-            background-color: var(--auburn);
-            color: var(--orange);
+            background-color: var(--danger);
+            color: var(--caution);
         }
 
         .destaque-light {
-        	background-color: var(--bright-indigo);
+        	background-color: var(--bright-supporting-color);
         	color: var(--background);
         }
         
@@ -64,7 +64,7 @@
         }
         
         a {
-            color: var(--phthalo-blue);
+            color: var(--supporting-color);
             font-weight: bold;
             text-decoration: underline;
             cursor: pointer;
@@ -148,7 +148,7 @@
 
     	.grid-item:hover {
     		opacity: 1;
-    		outline: 2px solid white;
+    		outline: 2px solid var(--background);
     		transform: translateY(-2px) rotateX(60deg) rotateY(0deg) rotateZ(-45deg);
     	}
 
@@ -167,7 +167,7 @@
 		}
 
 		.ui-header {
-			background-image: linear-gradient(to right, var(--phthalo-blue), var(--pastel-blue));
+			background-image: linear-gradient(to right, var(--supporting-color), var(--pastel-supporting-color));
 			color: var(--background);
 			height: 30px;
 			width: inherit;
@@ -198,7 +198,7 @@
 		#time {
 			width: 90px;
 			text-align: center;
-			color: var(--auburn);
+			color: var(--danger);
 		}
 
 		#button1 {
@@ -224,7 +224,7 @@
 		}
 
 		#hp-area {
-			color: var(--auburn);
+			color: var(--danger);
 			display: flex;
 		}
 
@@ -257,16 +257,16 @@
 		}
 
 		#window-popup {
-			z-index: 3;
+			z-index: 4;
 			background-color: var(--background);
-			border: 4px double var(--phthalo-blue);
+			border: 4px double var(--supporting-color);
 		}
 
 		.drop-down-menu {
-			z-index = 3;
+			z-index: 3;
 			position: absolute;
-			background-color: var(--phthalo-blue);
-			border: 4px double var(--phthalo-blue);
+			background-color: var(--supporting-color);
+			border: 4px double var(--supporting-color);
 		}
 
 		.drop-down-menu-item {
@@ -277,11 +277,11 @@
 
 		.drop-down-menu-item:hover {
 			background-color: var(--background);
-			color: var(--phthalo-blue);
+			color: var(--supporting-color);
 		}
 
 		.drop-down-menu-item:not(:last-child) {
-			border-bottom: 1px solid var(--pastel-blue); 
+			border-bottom: 1px solid var(--pastel-supporting-color); 
 		}
 
 		.event-log {
@@ -318,12 +318,12 @@
 			position: absolute;
 			text-align: center;
 			cursor: pointer;
-			background-color: var(--phthalo-blue);
+			background-color: var(--supporting-color);
 			color: var(--background);
 		}
 
 		.close-button {
-			background-color: var(--auburn);
+			background-color: var(--danger);
 		}
 
 		#log-minimize {
@@ -429,7 +429,7 @@
         }
     </style>
     <body>
-        <div class="wrapper">
+        <div class="wrapper" id="wrapper">
             <div class="main-screen">
             	<div class='map-layer' id='map'></div>
          	    <div class="ui-layer" id="ui">

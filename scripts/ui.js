@@ -1,3 +1,6 @@
+import { actions_pt } from "./objects/actions.js";
+import { iCommandYouTo } from "./objects/actions.js";
+
 export class DropDownMenu
 {
 	constructor(posx, posy, choiceList)
@@ -5,51 +8,41 @@ export class DropDownMenu
 		this.posx = posx;
 		this.posy = posy;
 		this.choiceList = choiceList;
-
-		const ui = document.getElementById('ui');
 	}
 
 	draw(width = 300)
 	{
 		const ddMenu = document.createElement('div');
-		let x = 0;
-		let y = 0;
-		let idx = 0;
+		ddMenu.className = 'drop-down-menu';
+		ddMenu.id = 'open-drop-down-menu';
+		ddMenu.style.width = `${width}px`;
 
-		if (this.posy > window.screen.availHeight - this.choiceList.length * 30) y = window.screen.availHeight - this.choiceList.length * 30;
-		else {y = this.posy - 40}
-		
-		if (this.posx > window.screen.availWidth - width) x = window.screen.availWidth - width;
-		else {x = this.posx - 10}
+		let x = this.posx;
+		let y = this.posy;
 
-		ddMenu.style.width = width;
-		//ddMenu.style.height = this.choiceList.length * 30;
-		ddMenu.style.left = x + "px";
-		ddMenu.style.top = y + "px";
-		ddMenu.className = "drop-down-menu";
-		ddMenu.id = "open-drop-down-menu";
+		if (x > 1920 - width)
+			x = 1920 - width;
 
-		this.choiceList.forEach((element) => {
-			let c = document.createElement('div');
-			c.className = "drop-down-menu-item";
-			c.id = `dd-choice-${idx}`;
-			c.innerHTML = element;
-			ddMenu.appendChild(c);
-			idx++;
-		})
+		if (y > 1080 - this.choiceList.length * 30)
+			y = 1080 - this.choiceList.length * 30;
 
-		ui.appendChild(ddMenu);
+		ddMenu.style.left = `${x}px`;
+		ddMenu.style.top  = `${y}px`;
 
-		for (let i = 0; i < idx; i++)
-		{
-			let c = document.getElementById(`dd-choice-${i}`);
-			c.onclick = function()
-			{
-				this.destroy;
-				// chamar funcao de actions	
-			} 
+		this.choiceList.forEach((el, idx) => {
+			const item = document.createElement('div');
+			item.className = 'drop-down-menu-item';
+			item.id = `dd-choice-${idx}`;
+			item.innerHTML = actions_pt[el];
+			item.onclick = () => {
+				ddMenu.remove();
+				iCommandYouTo(el);
+			};
+			ddMenu.appendChild(item);
+		});
+
+			ui.appendChild(ddMenu);
 		}
-	}
 
 	destroy()
 	{
@@ -104,4 +97,17 @@ export class PopUpWindow
 		windowPopUp.appendChild(windowClose);
 		windowPopUp.appendChild(windowContent);
 	}
+}
+
+export function screenToCanvas(event) {
+    const wrapper = document.querySelector('.wrapper');
+    const rect = wrapper.getBoundingClientRect();
+
+    const scaleX = 1920 / rect.width;
+    const scaleY = 1080 / rect.height;
+
+    return {
+        x: (event.clientX - rect.left) * scaleX,
+        y: (event.clientY - rect.top)  * scaleY
+    };
 }
