@@ -5,8 +5,8 @@ export class Map
     constructor(mapDocObject, gridSize)
     {
         this.mapDocObject = mapDocObject;
-        this.gridSize = gridSize; // gridSize é exatamente os centímetros dos lados no mundo
-        this.surfaceMap = [];
+        this.gridSize = gridSize; // gridSize^2 é justamente os cm^2 na escala do mapa
+        this.surfaceMap = []
 
         // calculando altura com 45 graus de rotação e hipotenusa gridSize
         this.gridHeight = Math.round(.707106781 * this.gridSize);
@@ -17,8 +17,13 @@ export class Map
     draw(width, height, wallMap = [])
     // desenha mapa isométrico através de array 2D com formato em losango/diamante
     {
-        let grid_Xaxis = Math.floor(width/this.gridSize);
-        let grid_Yaxis = Math.floor(height/this.gridSize);
+		const TILE_LEVEL_HEIGHTS = [
+			2 * (this.gridSize/45), 5 * (this.gridSize/45)
+		]
+		const TILE_LEVEL_WIDTHS = [
+			3 * (this.gridSize/45), 2 * (this.gridSize/45)
+		]
+		let level = 1;
 
         let x = 0;
         let y = 0;
@@ -29,35 +34,42 @@ export class Map
         let minRange = 0;
         let maxRange = 0;
 
+		let growHeight = 0;
+
         for (let y_index = 0; y_index < this.surfaceMap.length; y_index++)
         {
             const grid_row = document.createElement('div');
             grid_row.className = 'grid-row';
             grid_row.id = y_index;
 
-            x = this.gridWidth * y_index + this.gridWidth;
-            y = (this.gridHeight/2) * y_index;
+            x = (this.gridWidth - TILE_LEVEL_WIDTHS[level-1] * 2) * y_index + this.gridWidth;
+            y = ((this.gridHeight + TILE_LEVEL_HEIGHTS[level-1] + growHeight)/2) * y_index;
 
             // se estiver diminuindo, reverte as posições iniciais
 			if (y_index > 0) {
 				if (this.surfaceMap[y_index].length <= this.surfaceMap[y_index-1].length)
 				{
 					decrease++;
-					x -= decrease * (this.gridWidth);
-					y += decrease - (1 * decrease);
+					x -= decrease * (this.gridWidth - TILE_LEVEL_WIDTHS[level-1] * 2);
+					y += decrease - (1 * decrease) - (TILE_LEVEL_HEIGHTS[level-1] - growHeight +2) * decrease * 2;
 				}
 			}
 
             for (let x_index = 0; x_index < this.surfaceMap[y_index].length; x_index++)
             {
+				growHeight = (TILE_LEVEL_HEIGHTS[level-1] > 4) ? TILE_LEVEL_HEIGHTS[level-1] - 4 : 0;
+
                 const grid = document.createElement('div');
+				y -= TILE_LEVEL_HEIGHTS[level-1] - growHeight + 2;
+				x += TILE_LEVEL_WIDTHS[level-1] * 2;
                 grid.className = 'grid-item';
-                grid.style.height = this.gridSize + "px";
-                grid.style.width = this.gridSize + "px";
+				
+                grid.style.height = (this.gridHeight + growHeight) + "px";
+                grid.style.width = this.gridWidth + "px";
                 //grid.style.filter = "brightness(0.15)";
 
-				grid.style.top = y - ((this.surfaceMap[y_index].length-1)/2) * (this.gridHeight/2) + (this.gridHeight/2) * x_index - 40;
-				grid.style.right = x - (this.gridWidth/2) * x_index - 220;
+				grid.style.top = y - ((this.surfaceMap[y_index].length-1)/2) * ((this.gridHeight + growHeight + TILE_LEVEL_HEIGHTS[level-1])/2) + ((this.gridHeight + growHeight + TILE_LEVEL_HEIGHTS[level-1])/2) * x_index - 40;
+				grid.style.right = x - ((this.gridWidth)/2 + TILE_LEVEL_WIDTHS[level-1]) * x_index - 220;
                 
                 grid.id = `(${x_index}, ${y_index})`;
 
@@ -66,7 +78,8 @@ export class Map
 				minRange = tileRange[this.surfaceMap[y_index][x_index]][0];
 				maxRange = tileRange[this.surfaceMap[y_index][x_index]][1] + 1;
                 randomTile = Math.floor(Math.random() * (maxRange - minRange) + minRange);
-				grid.style.backgroundImage = `url(../assets/map/${randomTile}.png)`;
+				grid.style.backgroundImage = `url(../assets/map/${level}/${randomTile}.png)`;
+				grid.style.backgroundSize = `${this.gridWidth}px ${this.gridHeight + TILE_LEVEL_HEIGHTS[level-1]}px`;
 				
                 grid_row.appendChild(grid);
             }

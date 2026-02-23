@@ -139,17 +139,19 @@
     	    position: absolute;
     	    align-items: center;
     	    justify-content: center;
-    	    outline: 1px solid rgba(128, 128, 128, 0.3);
+    	    /* outline: 1px solid rgba(128, 128, 128, 0.3); */
     	    font-weight: bold;
-    	    background-size: cover;
+    	    /* background-size: cover; */
+			background-position: center;
+			/* background-clip: content-box; */
     	    image-rendering: pixelated;
-    	    transform: rotateX(60deg) rotateY(0deg) rotateZ(-45deg);
+    	    /* transform: rotateX(60deg) rotateY(0deg) rotateZ(-45deg); */
     	}
 
     	.grid-item:hover {
     		opacity: 1;
-    		outline: 2px solid var(--background);
-    		transform: translateY(-2px) rotateX(60deg) rotateY(0deg) rotateZ(-45deg);
+    		/* outline: 2px solid var(--background); */
+    		transform: translateY(-3px);
     	}
 
     	.click-item {

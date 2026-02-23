@@ -6,9 +6,9 @@ import { DropDownMenu, PopUpWindow, screenToCanvas } from "./ui.js";
 let gato = new Bicho(animais.gato_domestico);
 let map = new Map(document.getElementById('map'), 45);
 
-let popUp = new PopUpWindow('bem vindo à zona 7', 21, 7);
-popUp.html = "<p>Este jogo é melhor jogado com a tela do navegador cheia. Entre no modo tela cheia com F11!</p><a id='guide-href'>É novato? Veja o guia rápido aqui</a>";
-popUp.draw();
+// let popUp = new PopUpWindow('bem vindo à zona 7', 21, 7);
+// popUp.html = "<p>Este jogo é melhor jogado com a tela do navegador cheia. Entre no modo tela cheia com F11!</p><a id='guide-href'>É novato? Veja o guia rápido aqui</a>";
+// popUp.draw();
 
 let menu = 0;
 const mapLayer = document.getElementById('map');
@@ -23,7 +23,7 @@ const characterInfoWindow = document.getElementById('sticky-window');
 const HParea = document.getElementById('hp-area');
 const HPvalue = document.getElementById('HP');
 
-const guideHref = document.getElementById('guide-href');
+//const guideHref = document.getElementById('guide-href');
 
 logExpandButton.onclick = expandLog;
 logMinimizeButton.onclick = minimizeLog;
@@ -32,11 +32,12 @@ logMinimizeButton.onclick = minimizeLog;
 charExpandButton.onclick = expandCharacterInfo;
 charMinimizeButton.onclick = minimizeCharacterInfo;
 
-guideHref.onclick = openGuideWindow;
+//guideHref.onclick = openGuideWindow;
 
 //let walls = [0, 6, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0];
-let tileCategories = ['g', 'w', 's']
+let tileCategories = ['g', 's']
 let arr = [];
+let alt = [];
 // for (let i = 3; i < 53; i+=2) {
 // 	arr.push(Array.from({length: i}, () => tileCategories[Math.floor(Math.random() * 4)]));
 // }
@@ -44,7 +45,11 @@ let arr = [];
 // 	arr.push(Array.from({length: i}, () => tileCategories[Math.floor(Math.random() * 4)]));
 // }
 for (let i = 0; i < 73; i++) {
-	arr.push(Array.from({length: 73}, () => tileCategories[Math.floor(Math.random() * 3)]))
+	arr.push(Array.from({length: 73}, () => tileCategories[Math.floor(Math.random() * 2)]))
+}
+
+for (let i = 0; i < 73*73; i++) {
+	alt.push(Math.ceil(Math.random() * 2))
 }
 
 //let wallsArray = Array.from({length: 1920}, () => walls[Math.floor(Math.random() * 12)]);
