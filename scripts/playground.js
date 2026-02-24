@@ -3,8 +3,10 @@ import { animais } from "./objects/animais.js";
 import { Map } from "./Map.js";
 import { DropDownMenu, PopUpWindow, screenToCanvas } from "./ui.js";
 
+let mapZoomLevel = 45;
+
 let gato = new Bicho(animais.gato_domestico);
-let map = new Map(document.getElementById('map'), 45);
+let map = new Map(document.getElementById('map'), mapZoomLevel);
 
 // let popUp = new PopUpWindow('bem vindo à zona 7', 21, 7);
 // popUp.html = "<p>Este jogo é melhor jogado com a tela do navegador cheia. Entre no modo tela cheia com F11!</p><a id='guide-href'>É novato? Veja o guia rápido aqui</a>";
@@ -35,7 +37,8 @@ charMinimizeButton.onclick = minimizeCharacterInfo;
 //guideHref.onclick = openGuideWindow;
 
 //let walls = [0, 6, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0];
-let tileCategories = ['g', 's']
+let visibleMapSize = Math.floor( 4050 / mapZoomLevel) - mapZoomLevel/15 + 6;
+let tileCategories = ['g', 's'];
 let arr = [];
 let alt = [];
 // for (let i = 3; i < 53; i+=2) {
@@ -44,11 +47,11 @@ let alt = [];
 // for (let i = 53; i > 0; i-=2) {
 // 	arr.push(Array.from({length: i}, () => tileCategories[Math.floor(Math.random() * 4)]));
 // }
-for (let i = 0; i < 73; i++) {
-	arr.push(Array.from({length: 73}, () => tileCategories[Math.floor(Math.random() * 2)]))
+for (let i = 0; i < visibleMapSize; i++) {
+	arr.push(Array.from({length: visibleMapSize}, () => tileCategories[Math.floor(Math.random() * 2)]))
 }
 
-for (let i = 0; i < 73*73; i++) {
+for (let i = 0; i < visibleMapSize; i++) {
 	alt.push(Math.ceil(Math.random() * 2))
 }
 

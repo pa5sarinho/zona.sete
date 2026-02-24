@@ -7,6 +7,7 @@ export class Map
         this.mapDocObject = mapDocObject;
         this.gridSize = gridSize; // gridSize^2 é justamente os cm^2 na escala do mapa
         this.surfaceMap = []
+		this.altitudeMap = []
 
         // calculando altura com 45 graus de rotação e hipotenusa gridSize
         this.gridHeight = Math.round(.707106781 * this.gridSize);
@@ -23,8 +24,10 @@ export class Map
 		const TILE_LEVEL_WIDTHS = [
 			3 * (this.gridSize/45), 2 * (this.gridSize/45)
 		]
-		let level = 1;
 
+		const MAP_OFFSET = Math.floor(14175 / this.gridSize) + (this.gridSize - 45) * 4;
+
+		let level = 1;
         let x = 0;
         let y = 0;
         let arrayIndex = 0;
@@ -69,7 +72,7 @@ export class Map
                 //grid.style.filter = "brightness(0.15)";
 
 				grid.style.top = y - ((this.surfaceMap[y_index].length-1)/2) * ((this.gridHeight + growHeight + TILE_LEVEL_HEIGHTS[level-1])/2) + ((this.gridHeight + growHeight + TILE_LEVEL_HEIGHTS[level-1])/2) * x_index - 40;
-				grid.style.right = x - ((this.gridWidth)/2 + TILE_LEVEL_WIDTHS[level-1]) * x_index - 220;
+				grid.style.right = x - ((this.gridWidth)/2 + TILE_LEVEL_WIDTHS[level-1]) * x_index - MAP_OFFSET;
                 
                 grid.id = `(${x_index}, ${y_index})`;
 
