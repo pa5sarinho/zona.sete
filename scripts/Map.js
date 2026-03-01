@@ -10,28 +10,29 @@ export class Map
 		this.altitudeMap = []
 
         // calculando altura com 45 graus de rotação e hipotenusa gridSize
-        this.gridHeight = Math.round(.707106781 * this.gridSize);
+        // this.gridHeight = Math.round(.707106781 * this.gridSize);
         // comprimento da sombra do quadrado com rotação de 60 graus
-        this.gridWidth = Math.round(.5 * this.gridSize + .866025404 * this.gridSize);
+        // this.gridWidth = Math.round(.5 * this.gridSize + .866025404 * this.gridSize);
+        this.gridWidth  = 61 * (this.gridSize/45);
+        this.gridHeight = 33 * (this.gridSize/45);
     }
 
     draw(width, height)
     // desenha mapa isométrico através de array 2D com formato em losango/diamante
     {
 		const TILE_LEVEL_HEIGHTS = [
-			2 * (this.gridSize/45), 5 * (this.gridSize/45)
+			33 * (this.gridSize/45), 37 * (this.gridSize/45)
 		]
-		const TILE_LEVEL_WIDTHS = [
-			3 * (this.gridSize/45), 2 * (this.gridSize/45)
-		]
+
+		const TILE_BORDERS = 6;
 
 		const MAP_OFFSET = Math.floor(14175 / this.gridSize) + (this.gridSize - 45) * 4;
 
-		let level = 1;
         let x = 0;
         let y = 0;
         let arrayIndex = 0;
         let decrease = 0;
+        let level = this.altitudeMap[0][0];
         
         let randomTile = 0;
         let minRange = 0;
@@ -45,44 +46,40 @@ export class Map
             grid_row.className = 'grid-row';
             grid_row.id = y_index;
 
-            x = (this.gridWidth - TILE_LEVEL_WIDTHS[level-1] * 2) * y_index + this.gridWidth;
-            y = ((this.gridHeight + TILE_LEVEL_HEIGHTS[level-1] + growHeight)/2) * y_index;
+            x = (this.gridWidth) * y_index + this.gridWidth;
+            y = ((this.gridHeight - TILE_BORDERS)/2) * y_index;
 
             // se estiver diminuindo, reverte as posições iniciais
 			if (y_index > 0) {
 				if (this.surfaceMap[y_index].length <= this.surfaceMap[y_index-1].length)
 				{
 					decrease++;
-					x -= decrease * (this.gridWidth - TILE_LEVEL_WIDTHS[level-1] * 2);
-					y += decrease - (1 * decrease) - (TILE_LEVEL_HEIGHTS[level-1] - growHeight +2) * decrease * 2;
+					x -= decrease * (this.gridWidth);
+					y += decrease - (1 * decrease);
 				}
 			}
 
             for (let x_index = 0; x_index < this.surfaceMap[y_index].length; x_index++)
             {
-				growHeight = (TILE_LEVEL_HEIGHTS[level-1] > 4) ? TILE_LEVEL_HEIGHTS[level-1] - 4 : 0;
-
                 const grid = document.createElement('div');
-				y -= TILE_LEVEL_HEIGHTS[level-1] - growHeight + 2;
-				x += TILE_LEVEL_WIDTHS[level-1] * 2;
                 grid.className = 'grid-item';
-				
-                grid.style.height = (this.gridHeight + growHeight) + "px";
+                
+				level = this.altitudeMap[y_index][x_index];
+                grid.style.height = TILE_LEVEL_HEIGHTS[level-1] + "px";
                 grid.style.width = this.gridWidth + "px";
-                //grid.style.filter = "brightness(0.15)";
 
-				grid.style.top = y - ((this.surfaceMap[y_index].length-1)/2) * ((this.gridHeight + growHeight + TILE_LEVEL_HEIGHTS[level-1])/2) + ((this.gridHeight + growHeight + TILE_LEVEL_HEIGHTS[level-1])/2) * x_index - 40;
-				grid.style.right = x - ((this.gridWidth)/2 + TILE_LEVEL_WIDTHS[level-1]) * x_index - MAP_OFFSET;
+				grid.style.top = y -((this.surfaceMap[y_index].length-1)/2) * ((this.gridHeight - TILE_BORDERS)/2) + ((this.gridHeight - TILE_BORDERS)/2) * x_index-40 - TILE_LEVEL_HEIGHTS[level-1];
+				grid.style.right = x - ((this.gridWidth)/2) * x_index - MAP_OFFSET;
                 
                 grid.id = `(${x_index}, ${y_index})`;
-
+                
                 // escolhe um tile aleatorio pra cada categoria de chão
 
 				minRange = tileRange[this.surfaceMap[y_index][x_index]][0];
 				maxRange = tileRange[this.surfaceMap[y_index][x_index]][1] + 1;
                 randomTile = Math.floor(Math.random() * (maxRange - minRange) + minRange);
 				grid.style.backgroundImage = `url(../assets/map/${level}/${randomTile}.png)`;
-				grid.style.backgroundSize = `${this.gridWidth}px ${this.gridHeight + TILE_LEVEL_HEIGHTS[level-1]}px`;
+				grid.style.backgroundSize = `65px ${TILE_LEVEL_HEIGHTS[level-1]}px`;
 				
                 grid_row.appendChild(grid);
             }
