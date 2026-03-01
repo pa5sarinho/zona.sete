@@ -15,7 +15,7 @@ export class Map
         this.gridWidth = Math.round(.5 * this.gridSize + .866025404 * this.gridSize);
     }
 
-    draw(width, height, wallMap = [])
+    draw(width, height)
     // desenha mapa isométrico através de array 2D com formato em losango/diamante
     {
 		const TILE_LEVEL_HEIGHTS = [
@@ -128,7 +128,6 @@ export class Map
     		else { len -= 2; }
     		isometricMap.push(a);
     	});
-    	this.surfaceMap = isometricMap;
     	return isometricMap;
     }
 

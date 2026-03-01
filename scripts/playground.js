@@ -33,34 +33,20 @@ logMinimizeButton.onclick = minimizeLog;
 
 charExpandButton.onclick = expandCharacterInfo;
 charMinimizeButton.onclick = minimizeCharacterInfo;
-
 //guideHref.onclick = openGuideWindow;
 
-//let walls = [0, 6, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0];
-let visibleMapSize = Math.floor( 4050 / mapZoomLevel) - mapZoomLevel/15 + 6;
-let tileCategories = ['g', 's'];
-let arr = [];
-let alt = [];
-// for (let i = 3; i < 53; i+=2) {
-// 	arr.push(Array.from({length: i}, () => tileCategories[Math.floor(Math.random() * 4)]));
-// }
-// for (let i = 53; i > 0; i-=2) {
-// 	arr.push(Array.from({length: i}, () => tileCategories[Math.floor(Math.random() * 4)]));
-// }
-for (let i = 0; i < visibleMapSize; i++) {
-	arr.push(Array.from({length: visibleMapSize}, () => tileCategories[Math.floor(Math.random() * 2)]))
-}
+// const randomMap = createRandomMap();
+// map.surfaceMap = map.translate(randomMap[0]);
+// map.altitudeMap = map.translate(randomMap[1]);
 
-for (let i = 0; i < visibleMapSize; i++) {
-	alt.push(Math.ceil(Math.random() * 2))
-}
+drawMap();
 
-//let wallsArray = Array.from({length: 1920}, () => walls[Math.floor(Math.random() * 12)]);
+console.log(map.surfaceMap);
 
-map.translate(arr);
-map.draw(1800, 960); // 60x32
 //map.addEffect(26, 27, 6, 12, "brightness", 3);
 
+//downloadMapData();
+let loadedMap = getMapData();
 updateHP(100);
 
 let choices = 
@@ -100,7 +86,72 @@ mapLayer.addEventListener('contextmenu', function(event) {
     mapLayer.appendChild(bluedot);
 })
 
+async function getMapData() {
+	const url = "./scripts/objects/map.json";
+	try {
+	  const response = await fetch(url);
+	  if (!response.ok) {
+	    throw new Error(`Response status: ${response.status}`);
+	  }
 
+	  const result = await response.json();
+	  //console.log(result);
+	  return result;
+	} catch (error) {
+	  	console.error(error.message);
+	}
+}
+
+async function loadMapData() {
+	const url = "./scripts/objects/map.json";
+	try {
+	  const response = await fetch(url);
+	  if (!response.ok) {
+	    throw new Error(`Response status: ${response.status}`);
+	  }
+
+	  const result = await response.json();
+	  console.log(result.altitude);
+	  map.surfaceMap = result.surface;
+	  map.altitudeMap = result.altitude;
+	  return result;
+	} catch (error) {
+	  	console.error(error.message);
+	}
+}
+
+async function downloadMapData() {
+	const m = {surface: map.surfaceMap, altitude: map.altitudeMap};
+	const jsonString = JSON.stringify(m);
+	const blob = new Blob([jsonString], { type: 'application/json' });
+	const a = document.createElement('a');
+	a.href = URL.createObjectURL(blob);
+	a.download = "map.json";
+	document.body.appendChild(a);
+	a.click();
+	document.body.removeChild(a);
+}
+
+async function drawMap() {
+	const loadedMap = await loadMapData();
+	map.draw(1800, 960); // 60x32
+}
+
+function createRandomMap() {
+	let visibleMapSize = Math.floor( 4050 / mapZoomLevel) - mapZoomLevel/15 + 6;
+	let tileCategories = ['g', 's'];
+	let arr = [];
+	let alt = [];
+	
+	for (let i = 0; i < visibleMapSize; i++) {
+		arr.push(Array.from({length: visibleMapSize}, () => tileCategories[Math.floor(Math.random() * 2)]))
+	}
+	
+	for (let i = 0; i < visibleMapSize; i++) {
+			alt.push(Array.from({length: visibleMapSize}, () => Math.ceil(Math.random() * 2)))
+	}
+	return [arr, alt];
+}
 
 function updateHP(newHP) {
 	let hp = newHP;
