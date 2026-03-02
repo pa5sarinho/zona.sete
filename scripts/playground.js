@@ -8,8 +8,8 @@ let mapZoomLevel = 45;
 let gato = new Bicho(animais.gato_domestico);
 let map = new Map(document.getElementById('map'), mapZoomLevel);
 
-// let popUp = new PopUpWindow('bem vindo à zona 7', 21, 7);
-// popUp.html = "<p>Este jogo é melhor jogado com a tela do navegador cheia. Entre no modo tela cheia com F11!</p><a id='guide-href'>É novato? Veja o guia rápido aqui</a>";
+// let popUp = new PopUpWindow('bem vindo à zona 7', 21, 8);
+// popUp.html = "<p>Este jogo é melhor jogado com a tela do navegador cheia. Entre no modo tela cheia com F11 ou <a id='fullscreen-welcome' class='destaque'>clicando aqui</a>!</p><a id='guide-href'>É novato? Veja o guia rápido aqui</a>";
 // popUp.draw();
 
 let menu = 0;
@@ -22,6 +22,8 @@ const charExpandButton = document.getElementById('char-expand');
 const charMinimizeButton = document.getElementById('char-minimize');
 const characterInfoWindow = document.getElementById('sticky-window');
 
+const downloadMapBtn = document.querySelector(".download-map");
+
 const HParea = document.getElementById('hp-area');
 const HPvalue = document.getElementById('HP');
 
@@ -33,6 +35,8 @@ logMinimizeButton.onclick = minimizeLog;
 
 charExpandButton.onclick = expandCharacterInfo;
 charMinimizeButton.onclick = minimizeCharacterInfo;
+
+downloadMapBtn.onclick = downloadMapData;
 //guideHref.onclick = openGuideWindow;
 
 // const randomMap = createRandomMap();
@@ -45,7 +49,7 @@ console.log(map.surfaceMap);
 
 //map.addEffect(26, 27, 6, 12, "brightness", 3);
 
-//downloadMapData();
+// downloadMapData();
 let loadedMap = getMapData();
 updateHP(100);
 
@@ -120,7 +124,7 @@ async function loadMapData() {
 	}
 }
 
-async function downloadMapData() {
+function downloadMapData() {
 	const m = {surface: map.surfaceMap, altitude: map.altitudeMap};
 	const jsonString = JSON.stringify(m);
 	const blob = new Blob([jsonString], { type: 'application/json' });
@@ -148,7 +152,7 @@ function createRandomMap() {
 	}
 	
 	for (let i = 0; i < visibleMapSize; i++) {
-			alt.push(Array.from({length: visibleMapSize}, () => Math.ceil(Math.random() * 2)))
+			alt.push(Array.from({length: visibleMapSize}, () => Math.ceil(Math.random() * 3)))
 	}
 	return [arr, alt];
 }

@@ -1,6 +1,7 @@
 <html>
     <head>
 		<meta charset="UTF-8">
+		<script type="module" src="./scripts/playground.js"></script>
     </head>
     <style>
     	@font-face
@@ -66,7 +67,6 @@
         a {
             color: var(--supporting-color);
             font-weight: bold;
-            text-decoration: underline;
             cursor: pointer;
         }
         
@@ -268,7 +268,7 @@
 			z-index: 3;
 			position: absolute;
 			background-color: var(--supporting-color);
-			border: 4px double var(--supporting-color);
+			border: 4px double var(--bright-supporting-color);
 		}
 
 		.drop-down-menu-item {
@@ -411,24 +411,47 @@
             }
         }
 
-		/* FERRAMENTAS DE TESTE/DEBUG (GOD MODE) */
+		/* FERRAMENTAS DE DESENVOLVIMENTO/TESTE/DEBUG (GOD MODE) */
 
 		#command-line-wrapper {
 			position: absolute;
-			bottom: 30px;
+			bottom: 0px;
 			height: 30px;
 			width: 1800px;
-			display: none;
 		}
 
         #command-line {
         	height: 30px;
         	width: 540px;
         	resize: none;
-        	background-color: var(--background);
+        	background-color: var(--supporting-color);
+        	color: var(--background);
         	font-size: 20px;
         	outline: none;
+        	border: 4px double var(--pastel-supporting-color);
         }
+
+        .dev-ui {
+        	height: 30px;
+        	width: 120px;
+        	position: fixed;
+			border-radius: 0px;
+			background-color: var(--supporting-color);
+        	color: var(--background);
+        	outline: none;
+        	border: 4px double var(--pastel-supporting-color);
+        	font-family: jetBrainsMono;
+        	align-text: center;
+        }
+
+        button.dev-ui:hover {
+        	background-color: var(--bright-supporting-color);
+        }
+
+        button.dev-ui:active {
+			background-color: var(--supporting-color);
+		}
+
     </style>
     <body>
         <div class="wrapper" id="wrapper">
@@ -474,9 +497,9 @@
             	</div>
             	<div id="command-line-wrapper">
 					<textarea id="command-line" rows="1"></textarea>
+					<button class="dev-ui download-map" style="right: 30px">baixar mapa</button>
             	</div>
         	</div>
        	</div>
     </body>
-    <script type="module" src="./scripts/playground.js"></script>
 </html>

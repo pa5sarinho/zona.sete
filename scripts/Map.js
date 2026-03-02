@@ -21,7 +21,7 @@ export class Map
     // desenha mapa isométrico através de array 2D com formato em losango/diamante
     {
 		const TILE_LEVEL_HEIGHTS = [
-			33 * (this.gridSize/45), 37 * (this.gridSize/45)
+			33 * (this.gridSize/45), 37 * (this.gridSize/45), 41 * (this.gridSize/45)
 		]
 
 		const TILE_BORDERS = 6;
@@ -287,5 +287,18 @@ export class Map
 	    		}
 	   		}
 	   	}
+    }
+    
+    changeTile(tileID, newTile, newHeight)
+    {
+    	const regex = /$$\s*([+-]?\d+)\s*,\s*([+-]?\d+(?:\.\d+)?)\s*$$/;
+    	const x = 0;
+    	const y = 0;
+		while ((match = regex.exec(texto)) !== null) {
+			x = parseFloat(match[1]); // coordenada x
+			y = parseFloat(match[2]); // coordenada y
+    	}
+    	this.surfaceMap[x][y] = newTile;
+    	this.altitudeMap[x][y] = newHeight;
     }
 }
