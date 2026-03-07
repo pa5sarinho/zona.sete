@@ -3,10 +3,11 @@ import { animais } from "./objects/animais.js";
 import { Map } from "./Map.js";
 import { DropDownMenu, PopUpWindow, screenToCanvas } from "./ui.js";
 
-let mapZoomLevel = 45;
+let mapZoomLevel = 1;
+const speed = 5;
 
 let gato = new Bicho(animais.gato_domestico);
-let map = new Map(document.getElementById('map'), mapZoomLevel);
+let map = new Map(document.getElementById('map'), 45);
 
 // let popUp = new PopUpWindow('bem vindo à zona 7', 21, 8);
 // popUp.html = "<p>Este jogo é melhor jogado com a tela do navegador cheia. Entre no modo tela cheia com F11 ou <a id='fullscreen-welcome' class='destaque'>clicando aqui</a>!</p><a id='guide-href'>É novato? Veja o guia rápido aqui</a>";
@@ -39,9 +40,9 @@ charMinimizeButton.onclick = minimizeCharacterInfo;
 downloadMapBtn.onclick = downloadMapData;
 //guideHref.onclick = openGuideWindow;
 
-// const randomMap = createRandomMap();
-// map.surfaceMap = map.translate(randomMap[0]);
-// map.altitudeMap = map.translate(randomMap[1]);
+const randomMap = createRandomMap();
+map.surfaceMap = map.translate(randomMap[0]);
+map.altitudeMap = map.translate(randomMap[1]);
 
 drawMap();
 
@@ -49,7 +50,6 @@ console.log(map.surfaceMap);
 
 //map.addEffect(26, 27, 6, 12, "brightness", 3);
 
-// downloadMapData();
 let loadedMap = getMapData();
 updateHP(100);
 
@@ -58,7 +58,16 @@ let choices =
 	"run", "dig", "build"
 ]
 
+const keys = {
+  ArrowUp: false,
+  ArrowDown: false,
+  ArrowLeft: false,
+  ArrowRight: false
+};
 
+moveView();
+
+// ---------------------------------- EVENT LISTENERS ----------------------------------
 // gere todos os cliques com o botão esquerdo no mapa
 mapLayer.addEventListener('click', function(event) {
     console.log('Mouse X:', event.clientX, 'Mouse Y:', event.clientY);
@@ -82,7 +91,7 @@ mapLayer.addEventListener('contextmenu', function(event) {
     bluedot.style.top = canvasPos.y - 30;
     bluedot.className = 'click-item';
     //bluedot.src = "../assets/map/blue_circle.gif";
-    bluedot.src = "../assets/sprites/PC.gif";
+    bluedot.src = "../assets/sprites/gato_domestico.png";
     bluedot.addEventListener("mouseout", () => {
     	bluedot.remove();
     });
@@ -90,6 +99,31 @@ mapLayer.addEventListener('contextmenu', function(event) {
     mapLayer.appendChild(bluedot);
 })
 
+// gere as teclas pressionadas
+document.addEventListener("keydown", (event) => {
+	if (event.key in keys) keys[event.key] = true;
+	// switch(event.key) {
+	// 	case "ArrowDown":
+	// 		moveView(0, -10);
+	// 		console.log("down");
+	// 		break;
+	// 	case "ArrowUp":
+	// 		moveView(0, 10);
+	// 		break;
+	// 	case "ArrowLeft":
+	// 		moveView(10, 0);
+	// 		break;
+	// 	case "ArrowRight":
+	// 		moveView(-10, 0);
+	// 		break;
+	// }
+})
+
+document.addEventListener("keyup", (event) => {
+  if (event.key in keys) keys[event.key] = false;
+});
+
+// ---------------------------------- FUNCOES ----------------------------------
 async function getMapData() {
 	const url = "./scripts/objects/map.json";
 	try {
@@ -137,18 +171,19 @@ function downloadMapData() {
 }
 
 async function drawMap() {
-	const loadedMap = await loadMapData();
-	map.draw(1800, 960); // 60x32
+	// const loadedMap = await loadMapData();
+	map.draw(); // 60x32
 }
 
 function createRandomMap() {
-	let visibleMapSize = Math.floor( 4050 / mapZoomLevel) - mapZoomLevel/15 + 6;
+	// let visibleMapSize = Math.floor( 4050 / mapZoomLevel) - mapZoomLevel/15 + 6;
+	let visibleMapSize = 549;
 	let tileCategories = ['g', 's'];
 	let arr = [];
 	let alt = [];
 	
 	for (let i = 0; i < visibleMapSize; i++) {
-		arr.push(Array.from({length: visibleMapSize}, () => tileCategories[Math.floor(Math.random() * 2)]))
+		arr.push(Array.from({length: visibleMapSize}, () => tileCategories[Math.floor(Math.random() * tileCategories.length)]))
 	}
 	
 	for (let i = 0; i < visibleMapSize; i++) {
@@ -189,4 +224,14 @@ function openGuideWindow() {
 	let guideWindow = new PopUpWindow('Noções básicas para começar', 45, 27);
 	guideWindow.html = "alguns textos q vou escrever muito depois...";
 	guideWindow.draw();
+}
+
+function moveView() {
+	if (keys.ArrowUp) map.canvasPositionY -= speed;
+	if (keys.ArrowDown) map.canvasPositionY += speed;
+	if (keys.ArrowLeft) map.canvasPositionX -= speed;
+	if (keys.ArrowRight) map.canvasPositionX += speed;
+	mapLayer.style.transform = `translate(${-map.canvasPositionX}px, ${-map.canvasPositionY}px)`;
+
+	requestAnimationFrame(moveView);
 }

@@ -8,6 +8,8 @@ export class Map
         this.gridSize = gridSize; // gridSize^2 é justamente os cm^2 na escala do mapa
         this.surfaceMap = []
 		this.altitudeMap = []
+		this.canvasPositionX = 0;
+		this.canvasPositionY = 0;
 
         // calculando altura com 45 graus de rotação e hipotenusa gridSize
         // this.gridHeight = Math.round(.707106781 * this.gridSize);
@@ -17,7 +19,7 @@ export class Map
         this.gridHeight = 33 * (this.gridSize/45);
     }
 
-    draw(width, height)
+    draw()
     // desenha mapa isométrico através de array 2D com formato em losango/diamante
     {
 		const TILE_LEVEL_HEIGHTS = [
@@ -26,7 +28,8 @@ export class Map
 
 		const TILE_BORDERS = 6;
 
-		const MAP_OFFSET = Math.floor(14175 / this.gridSize) + (this.gridSize - 45) * 4;
+		const MAP_OFFSET_X = 0;
+		const MAP_OFFSET_Y = 0;
 
         let x = 0;
         let y = 0;
@@ -68,8 +71,8 @@ export class Map
                 grid.style.height = TILE_LEVEL_HEIGHTS[level-1] + "px";
                 grid.style.width = this.gridWidth + "px";
 
-				grid.style.top = y -((this.surfaceMap[y_index].length-1)/2) * ((this.gridHeight - TILE_BORDERS)/2) + ((this.gridHeight - TILE_BORDERS)/2) * x_index-40 - TILE_LEVEL_HEIGHTS[level-1];
-				grid.style.right = x - ((this.gridWidth)/2) * x_index - MAP_OFFSET;
+				grid.style.top = y -((this.surfaceMap[y_index].length-1)/2) * ((this.gridHeight - TILE_BORDERS)/2) + ((this.gridHeight - TILE_BORDERS)/2) * x_index-40 - TILE_LEVEL_HEIGHTS[level-1] - MAP_OFFSET_Y;
+				grid.style.right = x - ((this.gridWidth)/2) * x_index - MAP_OFFSET_X;
                 
                 grid.id = `(${x_index}, ${y_index})`;
                 
@@ -127,6 +130,14 @@ export class Map
     	});
     	return isometricMap;
     }
+
+	// moveView(x, y)
+	// {
+	// 	this.canvasPositionX -= x;
+	// 	this.canvasPositionY += y;
+	// 	this.mapDocObject.style.top = this.canvasPositionY;
+	// 	this.mapDocObject.style.right = this.canvasPositionX;
+	// }
 
     addEffect(posX, posY, coreRadius, endRadius, effect, intensity = 4, luminosity = 1)
     // posX, posY: posicao xy de onde o efeito inicia
