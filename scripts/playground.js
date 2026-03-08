@@ -1,6 +1,7 @@
 import { Bicho } from "./objects/Bicho.js";
 import { animais } from "./objects/animais.js";
 import { Map } from "./Map.js";
+import { tileRange } from "./objects/tilerange.js";
 import { DropDownMenu, PopUpWindow, screenToCanvas } from "./ui.js";
 
 let mapZoomLevel = 1;
@@ -15,6 +16,7 @@ let map = new Map(document.getElementById('map'), 45);
 
 let menu = 0;
 const mapLayer = document.getElementById('map');
+let mapLoaded = false;
 
 const logExpandButton = document.getElementById('log-expand');
 const logMinimizeButton = document.getElementById('log-minimize');
@@ -22,31 +24,52 @@ const expandedLog = document.getElementById('expanded-log');
 const charExpandButton = document.getElementById('char-expand');
 const charMinimizeButton = document.getElementById('char-minimize');
 const characterInfoWindow = document.getElementById('sticky-window');
+const wrapper = document.querySelector('.wrapper');
 
 const downloadMapBtn = document.querySelector(".download-map");
 
 const HParea = document.getElementById('hp-area');
 const HPvalue = document.getElementById('HP');
 
+const gridCanvas = document.getElementById("grid");
+const tileCanvas = document.getElementById("map");
+const tilectx = tileCanvas.getContext("2d");
+const gridctx = gridCanvas.getContext("2d");
+
 //const guideHref = document.getElementById('guide-href');
+//guideHref.onclick = openGuideWindow;
 
 logExpandButton.onclick = expandLog;
 logMinimizeButton.onclick = minimizeLog;
-//teste.onclick = function() { addWindow('window', 20, 10); }
 
 charExpandButton.onclick = expandCharacterInfo;
 charMinimizeButton.onclick = minimizeCharacterInfo;
 
 downloadMapBtn.onclick = downloadMapData;
-//guideHref.onclick = openGuideWindow;
 
-const randomMap = createRandomMap();
-map.surfaceMap = map.translate(randomMap[0]);
-map.altitudeMap = map.translate(randomMap[1]);
+let txtmap = [];
 
-drawMap();
+// criar um mapa base aleatorio pra editar
+async function testMap()
+{
+	const randomMap = await createRandomMap(123);
+	for (let i = 0; i < 123; i++) {
+		let txt = [];
+		for (let j = 0; j < 123; j++) {
+			txt.push(tileRange[randomMap[0][i][j]][Math.floor(Math.random() * 2)])
+		}
+		txtmap.push(txt);
+	}
+	map.surfaceMap = randomMap[0];
+	map.altitudeMap = randomMap[1];
+	map.textureMap = txtmap;
+}
 
-console.log(map.surfaceMap);
+// testMap();
+
+drawMap().then(() => {
+	mapLoaded = true;
+})
 
 //map.addEffect(26, 27, 6, 12, "brightness", 3);
 
@@ -62,10 +85,14 @@ const keys = {
   ArrowUp: false,
   ArrowDown: false,
   ArrowLeft: false,
-  ArrowRight: false
+  ArrowRight: false,
+  w: false,
+  a: false,
+  s: false,
+  d: false
 };
 
-moveView();
+// moveView();
 
 // ---------------------------------- EVENT LISTENERS ----------------------------------
 // gere todos os cliques com o botão esquerdo no mapa
@@ -77,7 +104,8 @@ mapLayer.addEventListener('click', function(event) {
     }
     else
     {
-		const canvasPos = screenToCanvas(event);
+		const rect = wrapper.getBoundingClientRect();
+		const canvasPos = screenToCanvas(event, rect);
 	    menu = new DropDownMenu(canvasPos.x, canvasPos.y, choices);
 	    menu.draw();
     }
@@ -86,7 +114,10 @@ mapLayer.addEventListener('click', function(event) {
 // gere todos os cliques com o botão direito no mapa
 mapLayer.addEventListener('contextmenu', function(event) {
 	let bluedot = document.createElement('img');
-	const canvasPos = screenToCanvas(event);
+	
+    const rect = wrapper.getBoundingClientRect();
+	const canvasPos = screenToCanvas(event, rect);
+
     bluedot.style.left = canvasPos.x - 30;
     bluedot.style.top = canvasPos.y - 30;
     bluedot.className = 'click-item';
@@ -97,6 +128,16 @@ mapLayer.addEventListener('contextmenu', function(event) {
     });
     event.preventDefault();
     mapLayer.appendChild(bluedot);
+})
+
+mapLayer.addEventListener('mousemove', function(event) {
+	const rect = tileCanvas.getBoundingClientRect();
+	// const rect = tileCanvas.getBoundingClientRect();
+	
+	const canvasPos = screenToCanvas(event, rect);
+	let gridCoordinate = getCoordenates(canvasPos.x, canvasPos.y);
+
+	map.hoverTile = {x:gridCoordinate[0],y:gridCoordinate[1]}
 })
 
 // gere as teclas pressionadas
@@ -152,6 +193,10 @@ async function loadMapData() {
 	  console.log(result.altitude);
 	  map.surfaceMap = result.surface;
 	  map.altitudeMap = result.altitude;
+	  map.textureMap = result.texture;
+
+	  map.createGridTile();
+
 	  return result;
 	} catch (error) {
 	  	console.error(error.message);
@@ -159,7 +204,7 @@ async function loadMapData() {
 }
 
 function downloadMapData() {
-	const m = {surface: map.surfaceMap, altitude: map.altitudeMap};
+	const m = {surface: map.surfaceMap, altitude: map.altitudeMap, texture: map.textureMap};
 	const jsonString = JSON.stringify(m);
 	const blob = new Blob([jsonString], { type: 'application/json' });
 	const a = document.createElement('a');
@@ -171,13 +216,14 @@ function downloadMapData() {
 }
 
 async function drawMap() {
-	// const loadedMap = await loadMapData();
-	map.draw(); // 60x32
+	const loadedMap = await loadMapData();
+	drawGrid();
+	console.log('map loaded');
+	return true; // 60x32
 }
 
-function createRandomMap() {
+async function createRandomMap(visibleMapSize) {
 	// let visibleMapSize = Math.floor( 4050 / mapZoomLevel) - mapZoomLevel/15 + 6;
-	let visibleMapSize = 549;
 	let tileCategories = ['g', 's'];
 	let arr = [];
 	let alt = [];
@@ -189,7 +235,31 @@ function createRandomMap() {
 	for (let i = 0; i < visibleMapSize; i++) {
 			alt.push(Array.from({length: visibleMapSize}, () => Math.ceil(Math.random() * 3)))
 	}
+
 	return [arr, alt];
+}
+
+function drawGrid()
+{
+	gridctx.imageSmoothingEnabled = false;
+	map.drawGrid();
+}
+
+function getCoordenates(x, y)
+{
+	const worldX = x + map.camera.x - tileCanvas.width/2;
+	const worldY = y + map.camera.y - tileCanvas.height/2;
+	const tileX =
+		(worldX/(map.gridWidth/2) +
+		worldY/(map.gridHeight[0]/2)) / 2
+
+	const tileY =
+		(worldY/(map.gridHeight[0]/2) -
+		worldX/(map.gridWidth/2)) / 2
+
+	const gridX = Math.floor(tileX)
+	const gridY = Math.floor(tileY)
+	return [gridX, gridY];
 }
 
 function updateHP(newHP) {
@@ -235,3 +305,34 @@ function moveView() {
 
 	requestAnimationFrame(moveView);
 }
+
+function update(dt){
+
+  if(keys["ArrowUp"]) map.camera.y -= map.camera.speed * dt
+  if(keys["ArrowDown"]) map.camera.y += map.camera.speed * dt
+  if(keys["ArrowLeft"]) map.camera.x -= map.camera.speed * dt
+  if(keys["ArrowRight"]) map.camera.x += map.camera.speed * dt
+
+  if(keys["w"]) map.camera.y -= map.camera.speed * dt
+  if(keys["s"]) map.camera.y += map.camera.speed * dt
+  if(keys["a"]) map.camera.x -= map.camera.speed * dt
+  if(keys["d"]) map.camera.x += map.camera.speed * dt
+
+}
+
+let last = performance.now()
+
+function loop(now){
+
+  const dt = Math.min((now - last) / 1000, 0.1);
+  last = now;
+
+  update(dt);
+  if (mapLoaded)
+  	map.draw();
+
+  requestAnimationFrame(loop);
+
+}
+
+requestAnimationFrame(loop)

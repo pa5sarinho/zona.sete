@@ -6,8 +6,11 @@ export class Map
     {
         this.mapDocObject = mapDocObject;
         this.gridSize = gridSize; // gridSize^2 é justamente os cm^2 na escala do mapa
-        this.surfaceMap = []
-		this.altitudeMap = []
+        this.surfaceMap = [];
+		this.altitudeMap = [];
+		this.textureMap = [];
+		this.gridTile = null;
+		this.gridctx = null;
 		this.canvasPositionX = 0;
 		this.canvasPositionY = 0;
 
@@ -16,79 +19,145 @@ export class Map
         // comprimento da sombra do quadrado com rotação de 60 graus
         // this.gridWidth = Math.round(.5 * this.gridSize + .866025404 * this.gridSize);
         this.gridWidth  = 61 * (this.gridSize/45);
-        this.gridHeight = 33 * (this.gridSize/45);
+		this.gridHeight = [
+			30, 37, 41
+		]
+
+		this.hoverTile = {x:0,y:0}
+
+		this.imageCache = {}
+
+		this.camera = {
+			x: 50,
+			y: 1000,
+			speed: 500
+		}
     }
 
     draw()
     // desenha mapa isométrico através de array 2D com formato em losango/diamante
     {
-		const TILE_LEVEL_HEIGHTS = [
-			33 * (this.gridSize/45), 37 * (this.gridSize/45), 41 * (this.gridSize/45)
-		]
+		const canvas = document.getElementById("map");
+		const ctx = canvas.getContext("2d");
+		ctx.imageSmoothingEnabled = false
 
-		const TILE_BORDERS = 6;
+		ctx.clearRect(0,0,canvas.width,canvas.height);
 
-		const MAP_OFFSET_X = 0;
-		const MAP_OFFSET_Y = 0;
+		const camTileX =
+			(this.camera.x/(this.gridWidth/2) +
+			this.camera.y/(this.gridHeight[0]/2)) / 2
 
-        let x = 0;
-        let y = 0;
-        let arrayIndex = 0;
-        let decrease = 0;
-        let level = this.altitudeMap[0][0];
-        
-        let randomTile = 0;
-        let minRange = 0;
-        let maxRange = 0;
+		const camTileY =
+			(this.camera.y/(this.gridHeight[0]/2) -
+			this.camera.x/(this.gridWidth/2)) / 2
 
-		let growHeight = 0;
+		const centerX = Math.floor(camTileX);
+		const centerY = Math.floor(camTileY);
 
-        for (let y_index = 0; y_index < this.surfaceMap.length; y_index++)
+		const range = 30;
+
+        for (let y_index = centerY-range; y_index < centerY+range; y_index++)
         {
-            const grid_row = document.createElement('div');
-            grid_row.className = 'grid-row';
-            grid_row.id = y_index;
+			if(!this.surfaceMap[y_index]) continue;
 
-            x = (this.gridWidth) * y_index + this.gridWidth;
-            y = ((this.gridHeight - TILE_BORDERS)/2) * y_index;
-
-            // se estiver diminuindo, reverte as posições iniciais
-			if (y_index > 0) {
-				if (this.surfaceMap[y_index].length <= this.surfaceMap[y_index-1].length)
-				{
-					decrease++;
-					x -= decrease * (this.gridWidth);
-					y += decrease - (1 * decrease);
-				}
-			}
-
-            for (let x_index = 0; x_index < this.surfaceMap[y_index].length; x_index++)
+            for (let x_index = centerX-range; x_index < centerX+range; x_index++)
             {
-                const grid = document.createElement('div');
-                grid.className = 'grid-item';
-                
-				level = this.altitudeMap[y_index][x_index];
-                grid.style.height = TILE_LEVEL_HEIGHTS[level-1] + "px";
-                grid.style.width = this.gridWidth + "px";
+				if(this.surfaceMap[y_index][x_index] === undefined) continue;
 
-				grid.style.top = y -((this.surfaceMap[y_index].length-1)/2) * ((this.gridHeight - TILE_BORDERS)/2) + ((this.gridHeight - TILE_BORDERS)/2) * x_index-40 - TILE_LEVEL_HEIGHTS[level-1] - MAP_OFFSET_Y;
-				grid.style.right = x - ((this.gridWidth)/2) * x_index - MAP_OFFSET_X;
-                
-                grid.id = `(${x_index}, ${y_index})`;
-                
-                // escolhe um tile aleatorio pra cada categoria de chão
-
-				minRange = tileRange[this.surfaceMap[y_index][x_index]][0];
-				maxRange = tileRange[this.surfaceMap[y_index][x_index]][1] + 1;
-                randomTile = Math.floor(Math.random() * (maxRange - minRange) + minRange);
-				grid.style.backgroundImage = `url(../assets/map/${level}/${randomTile}.png)`;
-				grid.style.backgroundSize = `65px ${TILE_LEVEL_HEIGHTS[level-1]}px`;
+				let level = this.altitudeMap[y_index][x_index];
 				
-                grid_row.appendChild(grid);
+				const img = this.loadImg(`../assets/map/${level}/${this.textureMap[y_index][x_index]}.png`);
+				this.drawTile(x_index, y_index, img, canvas, ctx);
             }
-            this.mapDocObject.appendChild(grid_row);
         }
     }
+
+	loadImg(src)
+	{
+
+		if(!this.imageCache[src]){
+
+			const img = new Image();
+			img.src = src;
+
+			this.imageCache[src] = img;
+		}
+
+		return this.imageCache[src];
+
+	}
+	drawGrid()
+	{
+		const canvas = document.getElementById("grid");
+		const ctx = canvas.getContext("2d");
+
+		for (let y_index = -50; y_index < 500; y_index++)
+		{
+			for (let x_index = -50; x_index < 500; x_index++)
+            {
+				const pos = {
+					x: (x_index - y_index) * (this.gridWidth/2),
+					y: (x_index + y_index) * (this.gridHeight[0]/2) + this.gridHeight[0]
+				}
+
+				const screenX = pos.x - canvas.width/2;
+				const screenY = pos.y - canvas.height/2;
+
+				ctx.drawImage(
+					this.gridTile,
+					screenX - this.gridWidth/2,
+					screenY
+				)
+			}
+		}
+		
+	}
+
+	drawTile(tileX, tileY, img, canvas, ctx)
+	{
+		const pos = {
+			x: (tileX - tileY) * this.gridWidth/2,
+			y: (tileX + tileY) * (this.gridHeight[0]/2)
+		};
+
+		const screenX = pos.x - this.camera.x + canvas.width/2;
+		const screenY = pos.y - this.camera.y + canvas.height/2;
+
+		let offsetX = img.width / 2;
+		let offsetY = img.height - this.gridHeight[0];
+
+		if (this.hoverTile.x == tileX && this.hoverTile.y == tileY)
+			offsetY += 3;
+
+		ctx.drawImage(
+			img,
+			screenX - offsetX,
+			screenY - offsetY
+		)
+	}
+
+	createGridTile()
+	{
+		const c = document.createElement("canvas");
+		c.width = this.gridWidth;
+		c.height = this.gridHeight[0];
+
+		const ctx = c.getContext("2d");
+
+		ctx.beginPath()
+		ctx.moveTo(this.gridWidth/2, 0);
+		ctx.lineTo(this.gridWidth, (this.gridHeight[0])/2);
+		ctx.lineTo(this.gridWidth/2, this.gridHeight[0]);
+		ctx.lineTo(0, (this.gridHeight[0])/2);
+		ctx.closePath();
+
+		ctx.strokeStyle = "#5986b2";
+		ctx.stroke();
+
+		this.gridTile = c;
+		this.gridctx = this.gridTile.getContext("2d");
+		console.log('grid tile ', c)
+	}
 
     translate(mapSection)
     // transforma array 2D de mapa quadrado em formato diamante para argumento em draw()
@@ -309,7 +378,13 @@ export class Map
 			x = parseFloat(match[1]); // coordenada x
 			y = parseFloat(match[2]); // coordenada y
     	}
-    	this.surfaceMap[x][y] = newTile;
+    	
+		//escolhe um tile aleatorio pra cada categoria de chão
+		let minRange = tileRange[newTile][0];
+		let maxRange = tileRange[newTile][1] + 1;
+		let randomTile = Math.floor(Math.random() * (maxRange - minRange) + minRange);
+		this.surfaceMap[x][y] = randomTile;
     	this.altitudeMap[x][y] = newHeight;
+		return this.loadImg(`../assets/map/${newHeight}/${randomTile}.png`);
     }
 }

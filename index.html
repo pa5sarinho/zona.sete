@@ -115,18 +115,17 @@
     	    align-items: center;
     	    justify-content: center;
     	    font-size: 20px;
-    	    
     	}
 
     	/* MAP LAYER */
     	.map-layer {
     	    z-index: -1;
     	    color: rgb(63, 63, 63);
-    	    width: 17664px;
-    	    height: 10764px;
+    	    width: 100%;
+    	    height: 100%;
     	    display: flex;
-    	    top: -4000px;
-    	    right: -6664px;
+			top: 0px;
+			right: 0px;
     	}
 
     	.grid-row {
@@ -457,7 +456,8 @@
     <body>
         <div class="wrapper" id="wrapper">
             <div class="main-screen">
-            	<div class='map-layer' id='map'></div>
+				<canvas class='map-layer' id="grid" width="1920" height="1080"></canvas>
+            	<canvas class='map-layer' id='map' width="1920" height="1080"></canvas>
          	    <div class="ui-layer" id="ui">
          	    	<div class="game-header">
 	         	    	<div id="general-info">

@@ -99,15 +99,13 @@ export class PopUpWindow
 	}
 }
 
-export function screenToCanvas(event) {
-    const wrapper = document.querySelector('.wrapper');
-    const rect = wrapper.getBoundingClientRect();
+export function screenToCanvas(event, target) {
 
-    const scaleX = 1920 / rect.width;
-    const scaleY = 1080 / rect.height;
+    const scaleX = 1920 / target.width;
+    const scaleY = 1080 / target.height;
 
     return {
-        x: (event.clientX - rect.left) * scaleX,
-        y: (event.clientY - rect.top)  * scaleY
+        x: (event.clientX - target.left) * scaleX,
+        y: (event.clientY - target.top)  * scaleY
     };
 }
