@@ -128,6 +128,10 @@
 			right: 0px;
     	}
 
+		#light {
+			pointer-events: none;
+		}
+
     	.grid-row {
     	    display: flex;
     	    flex-wrap: nowrap;
@@ -458,12 +462,13 @@
             <div class="main-screen">
 				<canvas class='map-layer' id="grid" width="1920" height="1080"></canvas>
             	<canvas class='map-layer' id='map' width="1920" height="1080"></canvas>
+				<canvas class='map-layer' id='light' width="1920" height="1080"></canvas>
          	    <div class="ui-layer" id="ui">
          	    	<div class="game-header">
 	         	    	<div id="general-info">
 							<div id="weather" class="icone30px">🌣</div>
 							<div id="degrees">32°C</div>
-							<div id="time">14:55</div>
+							<div id="time"></div>
 							<div id="day">Domingo</div>
 	         	    	</div>
 	         	    	<div class="destaque-light interactable" id="button1">opções</div>

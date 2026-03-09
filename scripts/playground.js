@@ -4,7 +4,6 @@ import { Map } from "./Map.js";
 import { tileRange } from "./objects/tilerange.js";
 import { DropDownMenu, PopUpWindow, screenToCanvas } from "./ui.js";
 
-let mapZoomLevel = 1;
 const speed = 5;
 
 let gato = new Bicho(animais.gato_domestico);
@@ -27,14 +26,17 @@ const characterInfoWindow = document.getElementById('sticky-window');
 const wrapper = document.querySelector('.wrapper');
 
 const downloadMapBtn = document.querySelector(".download-map");
+const time = document.querySelector('#time');
+const day = document.querySelector('#day');
 
 const HParea = document.getElementById('hp-area');
 const HPvalue = document.getElementById('HP');
 
 const gridCanvas = document.getElementById("grid");
-const tileCanvas = document.getElementById("map");
-const tilectx = tileCanvas.getContext("2d");
+const lightCanvas = document.getElementById("light");
+const tilectx = mapLayer.getContext("2d");
 const gridctx = gridCanvas.getContext("2d");
+const lightCtx= lightCanvas.getContext("2d");
 
 //const guideHref = document.getElementById('guide-href');
 //guideHref.onclick = openGuideWindow;
@@ -131,14 +133,27 @@ mapLayer.addEventListener('contextmenu', function(event) {
 })
 
 mapLayer.addEventListener('mousemove', function(event) {
-	const rect = tileCanvas.getBoundingClientRect();
-	// const rect = tileCanvas.getBoundingClientRect();
+	const rect = mapLayer.getBoundingClientRect();
+	// const rect = mapLayer.getBoundingClientRect();
 	
 	const canvasPos = screenToCanvas(event, rect);
 	let gridCoordinate = getCoordenates(canvasPos.x, canvasPos.y);
 
-	map.hoverTile = {x:gridCoordinate[0],y:gridCoordinate[1]}
+	map.hoverTile = {x:gridCoordinate.x,y:gridCoordinate.y}
 })
+
+mapLayer.addEventListener("wheel", (event) => {
+
+	const zoomSpeed = 0.1;
+
+	if (event.deltaY < 0)
+		map.camera.z *= 1 + zoomSpeed;
+	else
+		map.camera.z *= 1 - zoomSpeed;
+
+	map.camera.z = Math.max(0.5, Math.min(3, map.camera.z));
+
+});
 
 // gere as teclas pressionadas
 document.addEventListener("keydown", (event) => {
@@ -190,7 +205,6 @@ async function loadMapData() {
 	  }
 
 	  const result = await response.json();
-	  console.log(result.altitude);
 	  map.surfaceMap = result.surface;
 	  map.altitudeMap = result.altitude;
 	  map.textureMap = result.texture;
@@ -218,6 +232,7 @@ function downloadMapData() {
 async function drawMap() {
 	const loadedMap = await loadMapData();
 	drawGrid();
+	
 	console.log('map loaded');
 	return true; // 60x32
 }
@@ -247,19 +262,19 @@ function drawGrid()
 
 function getCoordenates(x, y)
 {
-	const worldX = x + map.camera.x - tileCanvas.width/2;
-	const worldY = y + map.camera.y - tileCanvas.height/2;
-	const tileX =
-		(worldX/(map.gridWidth/2) +
-		worldY/(map.gridHeight[0]/2)) / 2
+	const worldX = (x - mapLayer.width/2) / map.camera.z + map.camera.x;
+	const worldY = (y - mapLayer.height/2) / map.camera.z + map.camera.y;;
 
-	const tileY =
-		(worldY/(map.gridHeight[0]/2) -
-		worldX/(map.gridWidth/2)) / 2
+	const halfW = map.gridWidth / 2;
+	const halfH = map.gridHeight[0] / 2;
 
-	const gridX = Math.floor(tileX)
-	const gridY = Math.floor(tileY)
-	return [gridX, gridY];
+	const tileX = (worldX / halfW + worldY / halfH) / 2;
+	const tileY = (worldY / halfH - worldX / halfW) / 2;
+
+	return {
+		x: Math.floor(tileX),
+		y: Math.floor(tileY)
+	};
 }
 
 function updateHP(newHP) {
@@ -268,6 +283,10 @@ function updateHP(newHP) {
 	if (hp > 50) HParea.className = '';
 	else if (hp > 30) HParea.className = 'alerta';
 	else { HParea.className = 'perigo' };
+}
+
+function updateTime(hours, minutes) {
+	time.innerHTML = `${hours}:${minutes}`
 }
 
 function expandLog(event) {
@@ -296,43 +315,93 @@ function openGuideWindow() {
 	guideWindow.draw();
 }
 
-function moveView() {
-	if (keys.ArrowUp) map.canvasPositionY -= speed;
-	if (keys.ArrowDown) map.canvasPositionY += speed;
-	if (keys.ArrowLeft) map.canvasPositionX -= speed;
-	if (keys.ArrowRight) map.canvasPositionX += speed;
-	mapLayer.style.transform = `translate(${-map.canvasPositionX}px, ${-map.canvasPositionY}px)`;
+// ------------------ GAME LOOP E PASSAGEM DO TEMPO --------------------
 
-	requestAnimationFrame(moveView);
+
+const HOUR_LENGTH = 60;
+const MINUTE_LENGTH = 1;
+
+const gameTime = {
+	minute: 0,
+	hour: 12,
+	day: 1
+};
+
+function update(dt) {
+
+	if(keys["ArrowUp"]) map.camera.y -= map.camera.speed * dt
+	if(keys["ArrowDown"]) map.camera.y += map.camera.speed * dt
+	if(keys["ArrowLeft"]) map.camera.x -= map.camera.speed * dt
+	if(keys["ArrowRight"]) map.camera.x += map.camera.speed * dt
+
+	if(keys["w"]) map.camera.y -= map.camera.speed * dt
+	if(keys["s"]) map.camera.y += map.camera.speed * dt
+	if(keys["a"]) map.camera.x -= map.camera.speed * dt
+	if(keys["d"]) map.camera.x += map.camera.speed * dt
 }
 
-function update(dt){
+function hourTick() {
 
-  if(keys["ArrowUp"]) map.camera.y -= map.camera.speed * dt
-  if(keys["ArrowDown"]) map.camera.y += map.camera.speed * dt
-  if(keys["ArrowLeft"]) map.camera.x -= map.camera.speed * dt
-  if(keys["ArrowRight"]) map.camera.x += map.camera.speed * dt
+	gameTime.hour++;
 
-  if(keys["w"]) map.camera.y -= map.camera.speed * dt
-  if(keys["s"]) map.camera.y += map.camera.speed * dt
-  if(keys["a"]) map.camera.x -= map.camera.speed * dt
-  if(keys["d"]) map.camera.x += map.camera.speed * dt
+	if(gameTime.hour >= 24){
+		gameTime.hour = 0;
+		gameTime.day++;
+	}
+}
 
+function minuteTick() {
+
+	gameTime.minute++;
+
+	if(gameTime.minute >= 60){
+		gameTime.minute = 0;
+	}
+
+	updateTime(gameTime.hour, gameTime.minute < 10 ? `0${gameTime.minute}` : gameTime.minute)
+}
+
+function updateLighting() {
+	if (gameTime.hour >= 16 && gameTime.hour < 19)
+		map.applyDuskTint(tilectx, mapLayer, (gameTime.hour - 15) / 2);
+	if (gameTime.hour >= 18 && gameTime.hour < 20) 
+		map.applyNightTint(tilectx, mapLayer, (gameTime.hour - 17) / 2);
+	if (gameTime.hour >= 20 || gameTime.hour < 4)
+		map.applyNightTint(tilectx, mapLayer, 1.2);
+	if (gameTime.hour >= 4 && gameTime.hour < 7)
+		map.applyDuskTint(tilectx, mapLayer, 2 / (gameTime.hour - 3));
 }
 
 let last = performance.now()
+let hourTimer = 0;
+let minuteTimer = 0;
 
-function loop(now){
+function loop(now) {
 
-  const dt = Math.min((now - last) / 1000, 0.1);
-  last = now;
+	const dt = Math.min((now - last) / 1000, 0.1);
+	last = now;
 
-  update(dt);
-  if (mapLoaded)
-  	map.draw();
+	update(dt);
 
-  requestAnimationFrame(loop);
+	minuteTimer += dt;
+	hourTimer += dt;
 
+	if (minuteTimer >= MINUTE_LENGTH){
+		minuteTimer -= MINUTE_LENGTH;
+		minuteTick();
+	}
+
+	if (hourTimer >= HOUR_LENGTH){
+		hourTimer -= HOUR_LENGTH;
+		hourTick();
+	}
+
+	if (mapLoaded){
+		map.draw(tilectx, mapLayer);
+		updateLighting();
+	}
+
+	requestAnimationFrame(loop);
 }
 
-requestAnimationFrame(loop)
+requestAnimationFrame(loop);

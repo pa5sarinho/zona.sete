@@ -9,10 +9,9 @@ export class Map
         this.surfaceMap = [];
 		this.altitudeMap = [];
 		this.textureMap = [];
+		this.lightingMap = [];
 		this.gridTile = null;
 		this.gridctx = null;
-		this.canvasPositionX = 0;
-		this.canvasPositionY = 0;
 
         // calculando altura com 45 graus de rotação e hipotenusa gridSize
         // this.gridHeight = Math.round(.707106781 * this.gridSize);
@@ -30,16 +29,16 @@ export class Map
 		this.camera = {
 			x: 50,
 			y: 1000,
+			z: 1,
 			speed: 500
 		}
     }
 
-    draw()
+    draw(ctx, canvas)
     // desenha mapa isométrico através de array 2D com formato em losango/diamante
     {
-		const canvas = document.getElementById("map");
-		const ctx = canvas.getContext("2d");
-		ctx.imageSmoothingEnabled = false
+		// ctx.filter = "brightness(.7)";
+		ctx.imageSmoothingEnabled = false;
 
 		ctx.clearRect(0,0,canvas.width,canvas.height);
 
@@ -54,7 +53,7 @@ export class Map
 		const centerX = Math.floor(camTileX);
 		const centerY = Math.floor(camTileY);
 
-		const range = 30;
+		const range = Math.floor(30/this.camera.z);
 
         for (let y_index = centerY-range; y_index < centerY+range; y_index++)
         {
@@ -120,20 +119,28 @@ export class Map
 			y: (tileX + tileY) * (this.gridHeight[0]/2)
 		};
 
-		const screenX = pos.x - this.camera.x + canvas.width/2;
-		const screenY = pos.y - this.camera.y + canvas.height/2;
+		const screenX = (pos.x - this.camera.x) * this.camera.z + canvas.width/2;
+		const screenY = (pos.y - this.camera.y) * this.camera.z + canvas.height/2;
 
 		let offsetX = img.width / 2;
 		let offsetY = img.height - this.gridHeight[0];
 
 		if (this.hoverTile.x == tileX && this.hoverTile.y == tileY)
-			offsetY += 3;
+			offsetY += 4;
 
 		ctx.drawImage(
 			img,
-			screenX - offsetX,
-			screenY - offsetY
+			screenX - offsetX * this.camera.z,
+			screenY - offsetY * this.camera.z,
+			img.width * this.camera.z,
+			img.height * this.camera.z
 		)
+		// this.drawLighting(ctx,
+		// 	screenX - offsetX * this.camera.z, 
+		// 	screenY - offsetY * this.camera.z,
+		// 	this.gridWidth * this.camera.z, 
+		// 	this.gridHeight[0] * this.camera.z, 
+		// 	.8, .8, .8, .8);
 	}
 
 	createGridTile()
@@ -156,7 +163,27 @@ export class Map
 
 		this.gridTile = c;
 		this.gridctx = this.gridTile.getContext("2d");
-		console.log('grid tile ', c)
+	}
+
+	applyNightTint(ctx, canvas, darkness=1)
+	{
+		if (darkness === 0) darkness += .1;
+		ctx.globalCompositeOperation = "multiply";
+		ctx.fillStyle = `rgb(${52 / darkness}, ${69 / darkness}, ${121 / darkness})`;
+		ctx.fillRect(0,0,canvas.width,canvas.height);
+
+		ctx.globalCompositeOperation = "source-over";
+	}
+
+	applyDuskTint(ctx, canvas, darkness=1)
+	{
+		if (darkness === 0) darkness += .1;
+		ctx.globalCompositeOperation = "multiply";
+		ctx.fillStyle = `rgb(${245 / darkness}, ${192 / darkness}, ${101 / darkness})`;
+		
+		ctx.fillRect(0,0,canvas.width,canvas.height);
+
+		ctx.globalCompositeOperation = "source-over";
 	}
 
     translate(mapSection)
@@ -200,14 +227,6 @@ export class Map
     	return isometricMap;
     }
 
-	// moveView(x, y)
-	// {
-	// 	this.canvasPositionX -= x;
-	// 	this.canvasPositionY += y;
-	// 	this.mapDocObject.style.top = this.canvasPositionY;
-	// 	this.mapDocObject.style.right = this.canvasPositionX;
-	// }
-
     addEffect(posX, posY, coreRadius, endRadius, effect, intensity = 4, luminosity = 1)
     // posX, posY: posicao xy de onde o efeito inicia
     // coreRadius, endRadius: raio limite do efeito maximo, raio até onde o efeito diminui
@@ -243,7 +262,6 @@ export class Map
 	   		    		{
 	   		    			if (t == 0) t = (i-1);
 	   		    			y = t*2;	
-	   		    			console.log(i, y);
 	   		    		}
 	   		    	}
 	   		    	
@@ -316,7 +334,6 @@ export class Map
 	   		    		{
 	   		    			if (t == 0) t = (i-1);
 	   		    			y = t*2;	
-	   		    			console.log(i, y);
 	   		    		}
 	   		    	}
 
