@@ -5,3 +5,11 @@ export const tileRange = {
 	w: [12, 15], // water
 	x: [21, 23] // burnt grass
 }
+
+export const tileDescription = {
+	g: "grama",
+	s: "terra clara/areia",
+	b: "tijolo",
+	w: "agua",
+	x: "grama queimada"
+}

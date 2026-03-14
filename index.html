@@ -19,6 +19,7 @@
 		  --pastel-supporting-color: #5986b2;
 		  --bright-supporting-color: #0145f2;
 		  --cool-background: #EDF1F5;
+		  --offwhite: #cebe93;
 		}
     
         h2, h3
@@ -117,7 +118,10 @@
     	    font-size: 20px;
     	}
 
-    	/* MAP LAYER */
+		/*-----------------------------------------------------------------------------*/
+    	/*--------------------------------- MAP LAYER ---------------------------------*/
+		/*-----------------------------------------------------------------------------*/
+
     	.map-layer {
     	    z-index: -1;
     	    color: rgb(63, 63, 63);
@@ -166,7 +170,10 @@
     	    /* transform: rotateX(60deg) rotateY(0deg) rotateZ(-45deg); */
     	}
     	
-        /* UI LAYER */
+		/*----------------------------------------------------------------------------*/
+        /*--------------------------------- UI LAYER ---------------------------------*/
+		/*----------------------------------------------------------------------------*/
+
 		.ui-layer {
 	   		z-index: 1;
 		}
@@ -181,7 +188,6 @@
 
 		.game-header {
 			display: flex;
-			background-color: var(--background);
 			width: 1860px;
 		}
 
@@ -191,7 +197,8 @@
 
 		#general-info {
 			display: flex;
-			width: 540px;
+			width: 480px;
+			background-color: var(--background);
 		}
 
 		#degrees {
@@ -199,13 +206,13 @@
 			text-align: center;
 		}
 
-		#day {
-			width: 90px;
+		#place {
+			width: 210px;
 			text-align: center;
 		}
 
 		#time {
-			width: 90px;
+			width: 150px;
 			text-align: center;
 			color: var(--danger);
 		}
@@ -223,6 +230,13 @@
 		#button3 {
 			width: 150px;
 			text-align: center;
+		}
+
+		#character-info-row {
+			background-color: var(--offwhite);
+			position: fixed;
+			right: 60px;
+			width: 600px;
 		}
 
 		.character-info {
@@ -385,7 +399,9 @@
 			position: absolute;
 		}
 
+		/*----------------------------------------------------------------*/
 		/*---- CALCULOS DE TRADUÇÃO DE 1080P PARA DIVERSAS RESOLUÇÕES ----*/
+		/*----------------------------------------------------------------*/
     	
     	/* 720p */
         @media (max-width: 1539px) or (max-height: 839px){
@@ -414,7 +430,9 @@
             }
         }
 
+		/*-------------------------------------------------------*/
 		/* FERRAMENTAS DE DESENVOLVIMENTO/TESTE/DEBUG (GOD MODE) */
+		/*-------------------------------------------------------*/
 
 		#command-line-wrapper {
 			position: absolute;
@@ -466,14 +484,12 @@
          	    <div class="ui-layer" id="ui">
          	    	<div class="game-header">
 	         	    	<div id="general-info">
-							<div id="weather" class="icone30px">🌣</div>
+							<div id="season" class="icone30px">🌡️</div>
+							<div id="weather" class="icone30px">⛅</div>
 							<div id="degrees">32°C</div>
 							<div id="time"></div>
-							<div id="day">Domingo</div>
+							<div id="place">agreste</div>
 	         	    	</div>
-	         	    	<div class="destaque-light interactable" id="button1">opções</div>
-	         	    	<div class="importante interactable" id="button2">inventário</div>
-	         	    	<div class="destaque interactable" id="button3">compêndio</div>
 						<div id="character-info-row">
 							<div id="hp-area">
 								<div class="icone30px character-info">♥</div>
@@ -498,7 +514,7 @@
 						<div class="expand-minimize-button interactable" id="log-expand">▲</div>
 	                </div>
 	                <div class="portrait-list" id="smaller-p-list"></div>
-	                <div class="expand-minimize-button interactable" id="group-expand">...</div>
+	                <!-- <div class="expand-minimize-button interactable" id="group-expand">...</div> -->
 	                <div class="portrait-list" id="full-p-list"></div>
             	</div>
             	<div id="command-line-wrapper">

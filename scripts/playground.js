@@ -1,7 +1,8 @@
 import { Bicho } from "./objects/Bicho.js";
 import { animais } from "./objects/animais.js";
 import { Map } from "./Map.js";
-import { tileRange } from "./objects/tilerange.js";
+import { tileRange, tileDescription } from "./objects/tilerange.js";
+import { timeTranslate } from "./objects/translation.js";
 import { DropDownMenu, PopUpWindow, screenToCanvas } from "./ui.js";
 
 const speed = 5;
@@ -38,6 +39,9 @@ const tilectx = mapLayer.getContext("2d");
 const gridctx = gridCanvas.getContext("2d");
 const lightCtx= lightCanvas.getContext("2d");
 
+const tileInfo = document.createElement("div");
+tileInfo.classList = 'texto importante';
+
 //const guideHref = document.getElementById('guide-href');
 //guideHref.onclick = openGuideWindow;
 
@@ -50,23 +54,6 @@ charMinimizeButton.onclick = minimizeCharacterInfo;
 downloadMapBtn.onclick = downloadMapData;
 
 let txtmap = [];
-
-// criar um mapa base aleatorio pra editar
-async function testMap()
-{
-	const randomMap = await createRandomMap(123);
-	for (let i = 0; i < 123; i++) {
-		let txt = [];
-		for (let j = 0; j < 123; j++) {
-			txt.push(tileRange[randomMap[0][i][j]][Math.floor(Math.random() * 2)])
-		}
-		txtmap.push(txt);
-	}
-	map.surfaceMap = randomMap[0];
-	map.altitudeMap = randomMap[1];
-	map.textureMap = txtmap;
-}
-
 // testMap();
 
 drawMap().then(() => {
@@ -75,7 +62,7 @@ drawMap().then(() => {
 
 //map.addEffect(26, 27, 6, 12, "brightness", 3);
 
-let loadedMap = getMapData();
+// let loadedMap = getMapData();
 updateHP(100);
 
 let choices = 
@@ -93,8 +80,6 @@ const keys = {
   s: false,
   d: false
 };
-
-// moveView();
 
 // ---------------------------------- EVENT LISTENERS ----------------------------------
 // gere todos os cliques com o botão esquerdo no mapa
@@ -115,31 +100,37 @@ mapLayer.addEventListener('click', function(event) {
 
 // gere todos os cliques com o botão direito no mapa
 mapLayer.addEventListener('contextmenu', function(event) {
-	let bluedot = document.createElement('img');
-	
+	event.preventDefault();
+
     const rect = wrapper.getBoundingClientRect();
 	const canvasPos = screenToCanvas(event, rect);
-
-    bluedot.style.left = canvasPos.x - 30;
-    bluedot.style.top = canvasPos.y - 30;
-    bluedot.className = 'click-item';
-    //bluedot.src = "../assets/map/blue_circle.gif";
-    bluedot.src = "../assets/sprites/gato_domestico.png";
-    bluedot.addEventListener("mouseout", () => {
-    	bluedot.remove();
-    });
-    event.preventDefault();
-    mapLayer.appendChild(bluedot);
+	let gridCoordenate = getTile(canvasPos.x, canvasPos.y);
+    
+	map.createSpriteOnTile(gridCoordenate.x, gridCoordenate.y, 'flag');
 })
 
 mapLayer.addEventListener('mousemove', function(event) {
 	const rect = mapLayer.getBoundingClientRect();
-	// const rect = mapLayer.getBoundingClientRect();
 	
 	const canvasPos = screenToCanvas(event, rect);
-	let gridCoordinate = getCoordenates(canvasPos.x, canvasPos.y);
+	let gridCoordenate = getTile(canvasPos.x, canvasPos.y);
+	let tilePos = tileToScreen(gridCoordenate.x, gridCoordenate.y);
 
-	map.hoverTile = {x:gridCoordinate.x,y:gridCoordinate.y}
+	map.hoverTile = {x:gridCoordenate.x,y:gridCoordenate.y}
+	if (map.mapEditor && mapLoaded) {
+		tileInfo.innerHTML  = `${tileDescription[map.surfaceMap[map.hoverTile.y][map.hoverTile.x]]} : 
+								textura ${map.textureMap[map.hoverTile.y][map.hoverTile.x]} : 
+								altura ${map.altitudeMap[map.hoverTile.y][map.hoverTile.x]}`;
+		tileInfo.style.left = tilePos.x - 150;
+		tileInfo.style.top  = tilePos.y - 80 * map.camera.z;
+		tileInfo.style.position = 'absolute';
+		tileInfo.style.zIndex = 3;
+		wrapper.appendChild(tileInfo);
+	}
+})
+
+mapLayer.addEventListener('mouseout', function(event) {
+	if (tileInfo) tileInfo.remove();
 })
 
 mapLayer.addEventListener("wheel", (event) => {
@@ -152,6 +143,7 @@ mapLayer.addEventListener("wheel", (event) => {
 		map.camera.z *= 1 - zoomSpeed;
 
 	map.camera.z = Math.max(0.5, Math.min(3, map.camera.z));
+	console.log(map.camera.z)
 
 });
 
@@ -179,7 +171,7 @@ document.addEventListener("keyup", (event) => {
   if (event.key in keys) keys[event.key] = false;
 });
 
-// ---------------------------------- FUNCOES ----------------------------------
+// ---------------------------------- FUNCOES DO MAPA ----------------------------------
 async function getMapData() {
 	const url = "./scripts/objects/map.json";
 	try {
@@ -208,6 +200,8 @@ async function loadMapData() {
 	  map.surfaceMap = result.surface;
 	  map.altitudeMap = result.altitude;
 	  map.textureMap = result.texture;
+	  map.spriteMap = result.sprite;
+	  map.lightingMap = result.light;
 
 	  map.createGridTile();
 
@@ -218,7 +212,7 @@ async function loadMapData() {
 }
 
 function downloadMapData() {
-	const m = {surface: map.surfaceMap, altitude: map.altitudeMap, texture: map.textureMap};
+	const m = {surface: map.surfaceMap, altitude: map.altitudeMap, texture: map.textureMap, sprite: map.spriteMap, light: map.lightingMap};
 	const jsonString = JSON.stringify(m);
 	const blob = new Blob([jsonString], { type: 'application/json' });
 	const a = document.createElement('a');
@@ -229,12 +223,31 @@ function downloadMapData() {
 	document.body.removeChild(a);
 }
 
+// criar um mapa base aleatorio pra editar
+async function testMap()
+{
+	const randomMap = await createRandomMap(123);
+	for (let i = 0; i < 123; i++) {
+		let txt = [];
+		for (let j = 0; j < 123; j++) {
+			txt.push(tileRange[randomMap[0][i][j]][Math.floor(Math.random() * 2)])
+		}
+		txtmap.push(txt);
+	}
+	map.surfaceMap = randomMap[0];
+	map.altitudeMap = randomMap[1];
+	map.spriteMap = randomMap[2];
+	console.log(randomMap);
+	map.textureMap = txtmap;
+}
+
 async function drawMap() {
 	const loadedMap = await loadMapData();
 	drawGrid();
-	
+	for (let i = 0; i < 123; i++)
+		map.lightingMap.push(Array(123).fill(0));
 	console.log('map loaded');
-	return true; // 60x32
+	return true;
 }
 
 async function createRandomMap(visibleMapSize) {
@@ -242,16 +255,21 @@ async function createRandomMap(visibleMapSize) {
 	let tileCategories = ['g', 's'];
 	let arr = [];
 	let alt = [];
+	let prop= [];
 	
 	for (let i = 0; i < visibleMapSize; i++) {
 		arr.push(Array.from({length: visibleMapSize}, () => tileCategories[Math.floor(Math.random() * tileCategories.length)]))
 	}
 	
 	for (let i = 0; i < visibleMapSize; i++) {
-			alt.push(Array.from({length: visibleMapSize}, () => Math.ceil(Math.random() * 3)))
+		alt.push(Array.from({length: visibleMapSize}, () => Math.ceil(Math.random() * 3)))
 	}
 
-	return [arr, alt];
+	for (let i = 0; i < visibleMapSize; i++) {
+		prop.push(Array(visibleMapSize).fill(' '))
+	}
+
+	return [arr, alt, prop];
 }
 
 function drawGrid()
@@ -260,7 +278,7 @@ function drawGrid()
 	map.drawGrid();
 }
 
-function getCoordenates(x, y)
+function getTile(x, y)
 {
 	const worldX = (x - mapLayer.width/2) / map.camera.z + map.camera.x;
 	const worldY = (y - mapLayer.height/2) / map.camera.z + map.camera.y;;
@@ -277,6 +295,24 @@ function getCoordenates(x, y)
 	};
 }
 
+function tileToScreen(tileX, tileY){
+
+	const worldX = (tileX - tileY) * map.gridWidth / 2;
+	const worldY = (tileX + tileY) * (map.gridHeight[0] / 2) + map.gridHeight[0];
+
+	const screenX =
+		(worldX - map.camera.x) * map.camera.z +
+		mapLayer.width / 2;
+
+	const screenY =
+		(worldY - map.camera.y) * map.camera.z +
+		mapLayer.height / 2;
+
+	return {x: screenX, y: screenY};
+}
+
+// ---------------------------------- FUNCOES DA INTERFACE ----------------------------------
+
 function updateHP(newHP) {
 	let hp = newHP;
 	HPvalue.innerHTML = hp;
@@ -285,8 +321,10 @@ function updateHP(newHP) {
 	else { HParea.className = 'perigo' };
 }
 
-function updateTime(hours, minutes) {
-	time.innerHTML = `${hours}:${minutes}`
+function updateTime(hours, minutes, displayMode) {
+	if (displayMode === "window")
+		time.innerHTML = timeTranslate["pt"][gameTime.window];
+	else {time.innerHTML = `${hours}:${minutes}`}
 }
 
 function expandLog(event) {
@@ -318,13 +356,14 @@ function openGuideWindow() {
 // ------------------ GAME LOOP E PASSAGEM DO TEMPO --------------------
 
 
-const HOUR_LENGTH = 60;
-const MINUTE_LENGTH = 1;
+const HOUR_LENGTH = 6;
+const MINUTE_LENGTH = .1;
 
 const gameTime = {
 	minute: 0,
-	hour: 12,
-	day: 1
+	hour: 3,
+	day: 1,
+	window: ' '
 };
 
 function update(dt) {
@@ -358,18 +397,149 @@ function minuteTick() {
 		gameTime.minute = 0;
 	}
 
-	updateTime(gameTime.hour, gameTime.minute < 10 ? `0${gameTime.minute}` : gameTime.minute)
+	updateTime(gameTime.hour, gameTime.minute < 10 ? `0${gameTime.minute}` : gameTime.minute, "window")
 }
 
-function updateLighting() {
-	if (gameTime.hour >= 16 && gameTime.hour < 19)
-		map.applyDuskTint(tilectx, mapLayer, (gameTime.hour - 15) / 2);
-	if (gameTime.hour >= 18 && gameTime.hour < 20) 
-		map.applyNightTint(tilectx, mapLayer, (gameTime.hour - 17) / 2);
-	if (gameTime.hour >= 20 || gameTime.hour < 4)
-		map.applyNightTint(tilectx, mapLayer, 1.2);
-	if (gameTime.hour >= 4 && gameTime.hour < 7)
-		map.applyDuskTint(tilectx, mapLayer, 2 / (gameTime.hour - 3));
+function updateDynamicLighting(globalLighting) {
+	// map.addLight(30, 30, 10, globalLighting);
+	map.addSinglePointLight(30, 30, 2*globalLighting);
+}
+
+function updateGlobalLighting() {
+	if (gameTime.hour >= 11 && gameTime.hour < 15) noon();
+	else if (gameTime.hour >= 16 && gameTime.hour < 18) dusk();
+	else if (gameTime.hour == 18)  nightfall();
+	else if (gameTime.hour == 19)  lateNightFall();
+	else if (gameTime.hour >= 20 || gameTime.hour < 4) nighttime();
+	else if (gameTime.hour == 4) dawn();
+	else if (gameTime.hour >= 5 && gameTime.hour < 7) lateDawn();
+	else if (gameTime.hour >= 7 && gameTime.hour < 11) {
+		defaultGameTime();
+		if (gameTime.window != "morning")
+			updateDynamicLighting(0)
+		gameTime.window = "morning";
+	}
+	else if (gameTime.hour > 13 && gameTime.hour < 16) {
+		if (gameTime.hour === 15)
+			defaultGameTime();
+		gameTime.window = "afternoon";
+	}
+	
+}
+
+function nightfall() {
+	map.applyNightTint(tilectx, mapLayer, .7);
+	map.applySkyLight(
+		tilectx,
+		mapLayer,
+		"rgb(180,140,200)",
+		"rgb(255,160,120)",
+		.7
+	);
+	
+	document.body.style.background = `linear-gradient(#6663a6, #816b7c)`;
+	if (gameTime.window != "nightfall")
+	{
+		gameTime.window = 'nightfall';
+		updateDynamicLighting(1);
+	}
+}
+
+function lateNightFall() {
+	map.applyNightTint(tilectx, mapLayer, .9);
+	map.applySkyLight(
+		tilectx,
+		mapLayer,
+		"rgb(40,60,120)",
+		"rgb(20,30,60)",
+		0.7
+	);
+	document.body.style.background = `linear-gradient(#2b355b, #262c43)`;
+	gameTime.window = 'nightfall';
+}
+
+function nighttime() {
+	map.applyNightTint(tilectx, mapLayer, 1.2);
+	map.applySkyLight(
+		tilectx,
+		mapLayer,
+		"rgb(40,60,120)",
+		"rgb(20,30,60)",
+		0.7
+	);
+	document.body.style.background = `linear-gradient(#2b355b, #262c43)`;
+	if (gameTime.window != "nighttime")
+	{
+		gameTime.window = 'nighttime';
+		updateDynamicLighting(1);
+	}
+}
+
+function dusk() {
+	map.applySkyLight(
+		tilectx,
+		mapLayer,
+		"rgb(180,140,200)",
+		"rgb(255,160,120)",
+		.8
+	);
+	map.applyDuskTint(tilectx, mapLayer, (gameTime.hour - 15) / 2);
+	document.body.style.background = `linear-gradient(#c2a1ba, #fdb083)`;
+	if (gameTime.window != "dusk")
+	{
+		gameTime.window = 'dusk';
+		updateDynamicLighting(1);
+	}
+}
+
+function dawn() {
+	map.applyDuskTint(tilectx, mapLayer, 2 / (gameTime.hour - 3));
+	map.applySkyLight(
+		tilectx,
+		mapLayer,
+		"rgb(40,60,120)",
+		"rgb(20,30,60)",
+		0.7
+	);
+	document.body.style.background = `linear-gradient(rgb(114, 91, 125), rgb(198, 147, 125))`;
+	if (gameTime.window != "dawn")
+	{
+		gameTime.window = 'dawn';
+		updateDynamicLighting(1);
+	}
+}
+
+function lateDawn() {
+	map.applyDuskTint(tilectx, mapLayer, 2 / (gameTime.hour - 3));
+	map.applySkyLight(
+		tilectx,
+		mapLayer,
+		"rgb(180,140,200)",
+		"rgb(255,160,120)",
+		.8
+	);
+	document.body.style.backgroundColor = `rgb(245, 192, 101)`;
+	gameTime.window = 'dawn';
+}
+
+function noon() {
+	map.applySkyLight(
+		tilectx,
+		mapLayer,
+		"rgb(220,235,255)",
+		"rgb(255,255,255)",
+		.15
+	);
+	document.body.style.background = `linear-gradient(rgb(220,235,255), #FDF9ED)`;
+	if (gameTime.window != "noon")
+	{
+		gameTime.window = 'noon';
+		updateDynamicLighting(0);
+	}
+}
+
+function defaultGameTime() {
+	document.body.style.backgroundColor = '#FDF9ED';
 }
 
 let last = performance.now()
@@ -386,19 +556,19 @@ function loop(now) {
 	minuteTimer += dt;
 	hourTimer += dt;
 
-	if (minuteTimer >= MINUTE_LENGTH){
-		minuteTimer -= MINUTE_LENGTH;
-		minuteTick();
-	}
-
 	if (hourTimer >= HOUR_LENGTH){
 		hourTimer -= HOUR_LENGTH;
 		hourTick();
 	}
 
+	if (minuteTimer >= MINUTE_LENGTH){
+		minuteTimer -= MINUTE_LENGTH;
+		minuteTick();
+	}
+
 	if (mapLoaded){
-		map.draw(tilectx, mapLayer);
-		updateLighting();
+		map.draw(tilectx, mapLayer, lightCtx, lightCanvas);
+		updateGlobalLighting();
 	}
 
 	requestAnimationFrame(loop);

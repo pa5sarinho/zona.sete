@@ -1,7 +1,9 @@
-export let actions_pt = {
-    "run": "correr até aqui",
-    "dig": "cavar",
-    "build": "construir..."
+export let actions = {
+    "pt": {
+        "run": "correr até aqui",
+        "dig": "cavar",
+        "build": "construir..."
+    }
 }
 
 export function iCommandYouTo(action, obj="") {

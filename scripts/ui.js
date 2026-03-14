@@ -1,4 +1,4 @@
-import { actions_pt } from "./objects/actions.js";
+import { actions } from "./objects/actions.js";
 import { iCommandYouTo } from "./objects/actions.js";
 
 export class DropDownMenu
@@ -8,6 +8,7 @@ export class DropDownMenu
 		this.posx = posx;
 		this.posy = posy;
 		this.choiceList = choiceList;
+		this.language = 'pt';
 	}
 
 	draw(width = 300)
@@ -33,7 +34,7 @@ export class DropDownMenu
 			const item = document.createElement('div');
 			item.className = 'drop-down-menu-item';
 			item.id = `dd-choice-${idx}`;
-			item.innerHTML = actions_pt[el];
+			item.innerHTML = actions[this.language][el];
 			item.onclick = () => {
 				ddMenu.remove();
 				iCommandYouTo(el);
