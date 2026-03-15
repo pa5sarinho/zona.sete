@@ -192,7 +192,7 @@
 		}
 
 		.interactable {
-			cursor: url("assets/sprites/cursor2.png"), pointer;
+			cursor: url("assets/sprites/cursor1_dark.png"), pointer;
 		}
 
 		#general-info {
@@ -436,19 +436,22 @@
 
 		#command-line-wrapper {
 			position: absolute;
+			font-size: 13px;
 			bottom: 0px;
 			height: 30px;
-			width: 1800px;
-			cursor: url("assets/sprites/cursor1_dark.png"), default;
+			width: 1860px;
+			display: flex;
 		}
 
         #command-line {
         	height: 30px;
         	width: 540px;
+			position: relative;
+			font-size: 20px;
+			top: -1px;
         	resize: none;
         	background-color: var(--supporting-color);
         	color: var(--background);
-        	font-size: 20px;
         	outline: none;
         	border: 4px double var(--pastel-supporting-color);
         }
@@ -456,14 +459,27 @@
         .dev-ui {
         	height: 30px;
         	width: 120px;
-        	position: fixed;
 			border-radius: 0px;
+			bottom: 0px;
 			background-color: var(--supporting-color);
         	color: var(--background);
         	outline: none;
         	border: 4px double var(--pastel-supporting-color);
         	font-family: jetBrainsMono;
-        	align-text: center;
+        	align-items: center;
+        }
+
+		.dev-ui-alerta {
+        	height: 30px;
+        	width: 120px;
+			border-radius: 0px;
+			bottom: 0px;
+			background-color: var(--caution);
+            color: var(--danger);
+        	outline: none;
+        	border: 4px double var(--danger);
+        	font-family: jetBrainsMono;
+        	align-items: center;
         }
 
         button.dev-ui:hover {
@@ -472,6 +488,15 @@
 
         button.dev-ui:active {
 			background-color: var(--supporting-color);
+			border: 4px double var(--supporting-color);;
+		}
+
+		#g {
+			background: url("./assets/map/1/0.png");
+		}
+
+		#s {
+			background: url("./assets/map/1/6.png");
 		}
 
     </style>
@@ -488,7 +513,7 @@
 							<div id="weather" class="icone30px">⛅</div>
 							<div id="degrees">32°C</div>
 							<div id="time"></div>
-							<div id="place">agreste</div>
+							<div id="place"></div>
 	         	    	</div>
 						<div id="character-info-row">
 							<div id="hp-area">
@@ -519,7 +544,25 @@
             	</div>
             	<div id="command-line-wrapper">
 					<textarea id="command-line" rows="1"></textarea>
-					<button class="dev-ui download-map" style="right: 30px">baixar mapa</button>
+					<button class="dev-ui map-editor interactable">modo editor</button>
+					<div id="map-editor-menu" style="display: none;">
+						<button class="dev-ui interactable" id="g" style="width: 30px;"></button>
+						<button class="dev-ui interactable" id="s" style="width: 30px;"></button>
+
+						<button class="dev-ui interactable" id="l1" style="width: 30px;">1</button>
+						<button class="dev-ui interactable" id="l2" style="width: 30px;">2</button>
+						<button class="dev-ui interactable" id="l3" style="width: 30px;">3</button>
+					</div>
+					<!-- <div class="filler" style="width: 1040px;"></div> -->
+					<div class="dev-ui" id="fps-wrapper" style="display: flex; height: 22px; width: 60px;">
+						<div style="width: 35px; padding-left: 3px;">fps: </div>
+						<div id="fps"></div>
+					</div>
+					<div class="dev-ui" style="display: flex; height: 22px; width: 90px;">
+						<div style="width: 50px; padding-left: 4px;">zoom: </div>
+						<div id="zoom">1.00</div>
+					</div>
+					<button class="dev-ui download-map interactable" style="right: 0px">baixar mapa</button>
             	</div>
         	</div>
        	</div>

@@ -26,7 +26,11 @@ const charMinimizeButton = document.getElementById('char-minimize');
 const characterInfoWindow = document.getElementById('sticky-window');
 const wrapper = document.querySelector('.wrapper');
 
+const mapEditorMenu = document.getElementById("map-editor-menu");
+const fpsDiv = document.querySelector("#fps-wrapper");
+
 const downloadMapBtn = document.querySelector(".download-map");
+const mapEditorBtn = document.querySelector(".map-editor");
 const time = document.querySelector('#time');
 const day = document.querySelector('#day');
 
@@ -39,8 +43,19 @@ const tilectx = mapLayer.getContext("2d");
 const gridctx = gridCanvas.getContext("2d");
 const lightCtx= lightCanvas.getContext("2d");
 
+const zoom = document.querySelector("#zoom");
+const fps = document.querySelector("#fps");
 const tileInfo = document.createElement("div");
 tileInfo.classList = 'texto importante';
+
+let mapEditorSelectedTile = 'g';
+let mapEditorSelectedHeight = 1;
+
+const grassBtn = document.querySelector("#g");
+const sandBtn = document.querySelector("#s");
+const l1Btn = document.querySelector("#l1");
+const l2Btn = document.querySelector("#l2");
+const l3Btn = document.querySelector("#l3");
 
 //const guideHref = document.getElementById('guide-href');
 //guideHref.onclick = openGuideWindow;
@@ -52,6 +67,13 @@ charExpandButton.onclick = expandCharacterInfo;
 charMinimizeButton.onclick = minimizeCharacterInfo;
 
 downloadMapBtn.onclick = downloadMapData;
+mapEditorBtn.onclick = toggleMapEditor;
+
+grassBtn.onclick = () => mapEditorSelectedTile = 'g';
+sandBtn.onclick = () => mapEditorSelectedTile = 's';
+l1Btn.onclick = () => mapEditorSelectedHeight = 1;
+l2Btn.onclick = () => mapEditorSelectedHeight = 2;
+l3Btn.onclick = () => mapEditorSelectedHeight = 3;
 
 let txtmap = [];
 // testMap();
@@ -81,21 +103,38 @@ const keys = {
   d: false
 };
 
+let mousedown = false;
+
 // ---------------------------------- EVENT LISTENERS ----------------------------------
 // gere todos os cliques com o botão esquerdo no mapa
 mapLayer.addEventListener('click', function(event) {
-    console.log('Mouse X:', event.clientX, 'Mouse Y:', event.clientY);
-    if (document.getElementById('open-drop-down-menu'))
-    {
-    	menu.destroy();
-    }
-    else
-    {
+    // console.log('Mouse X:', event.clientX, 'Mouse Y:', event.clientY);
+	if (!map.mapEditor)
+	{
 		const rect = wrapper.getBoundingClientRect();
 		const canvasPos = screenToCanvas(event, rect);
-	    menu = new DropDownMenu(canvasPos.x, canvasPos.y, choices);
-	    menu.draw();
-    }
+
+		if (document.getElementById('open-drop-down-menu'))
+		{
+			menu.destroy();
+		}
+		else
+		{
+			menu = new DropDownMenu(canvasPos.x, canvasPos.y, choices);
+			menu.draw();
+		}
+	}
+});
+
+mapLayer.addEventListener('mousedown', function(event) {
+	if (event.button == 0)
+		mousedown = true;
+});
+
+mapLayer.addEventListener('mouseup', function(event) {
+	if (event.button == 0) {
+		mousedown = false;
+	}
 });
 
 // gere todos os cliques com o botão direito no mapa
@@ -126,6 +165,10 @@ mapLayer.addEventListener('mousemove', function(event) {
 		tileInfo.style.position = 'absolute';
 		tileInfo.style.zIndex = 3;
 		wrapper.appendChild(tileInfo);
+		if (mousedown)
+		{
+			map.changeTile(gridCoordenate.x, gridCoordenate.y, mapEditorSelectedTile, mapEditorSelectedHeight);
+		}
 	}
 })
 
@@ -143,7 +186,7 @@ mapLayer.addEventListener("wheel", (event) => {
 		map.camera.z *= 1 - zoomSpeed;
 
 	map.camera.z = Math.max(0.5, Math.min(3, map.camera.z));
-	console.log(map.camera.z)
+	zoom.innerHTML = map.camera.z.toFixed(2);
 
 });
 
@@ -246,6 +289,8 @@ async function drawMap() {
 	drawGrid();
 	for (let i = 0; i < 123; i++)
 		map.lightingMap.push(Array(123).fill(0));
+	for (let i = 0; i < 123; i++)
+		map.contrastMap.push(Array(123).fill(0));
 	console.log('map loaded');
 	return true;
 }
@@ -353,15 +398,28 @@ function openGuideWindow() {
 	guideWindow.draw();
 }
 
+function toggleMapEditor() {
+	if (map.mapEditor) 
+	{
+		map.mapEditor = false;
+		mapEditorMenu.style.display = "none";
+	}
+	else
+	{
+		map.mapEditor = true;
+		mapEditorMenu.style.display = "flex";
+	}
+}
+
 // ------------------ GAME LOOP E PASSAGEM DO TEMPO --------------------
 
 
-const HOUR_LENGTH = 6;
-const MINUTE_LENGTH = .1;
+const HOUR_LENGTH = 12;
+const MINUTE_LENGTH = .2;
 
 const gameTime = {
 	minute: 0,
-	hour: 3,
+	hour: 9,
 	day: 1,
 	window: ' '
 };
@@ -401,8 +459,8 @@ function minuteTick() {
 }
 
 function updateDynamicLighting(globalLighting) {
-	// map.addLight(30, 30, 10, globalLighting);
-	map.addSinglePointLight(30, 30, 2*globalLighting);
+	map.addLight(30, 30, 10, globalLighting);
+	// map.addSinglePointLight(30, 30, 3*globalLighting);
 }
 
 function updateGlobalLighting() {
@@ -441,7 +499,7 @@ function nightfall() {
 	if (gameTime.window != "nightfall")
 	{
 		gameTime.window = 'nightfall';
-		updateDynamicLighting(1);
+		updateDynamicLighting(.8);
 	}
 }
 
@@ -488,7 +546,7 @@ function dusk() {
 	if (gameTime.window != "dusk")
 	{
 		gameTime.window = 'dusk';
-		updateDynamicLighting(1);
+		updateDynamicLighting(.4);
 	}
 }
 
@@ -505,7 +563,7 @@ function dawn() {
 	if (gameTime.window != "dawn")
 	{
 		gameTime.window = 'dawn';
-		updateDynamicLighting(1);
+		updateDynamicLighting(.5);
 	}
 }
 
@@ -564,6 +622,17 @@ function loop(now) {
 	if (minuteTimer >= MINUTE_LENGTH){
 		minuteTimer -= MINUTE_LENGTH;
 		minuteTick();
+		let currentFPS = Math.round(1/dt);
+		fps.innerHTML = currentFPS;
+		if (currentFPS < 59)
+		{
+			fpsDiv.classList.add("dev-ui-alerta");
+			fpsDiv.classList.remove("dev-ui")
+		}
+		else
+		{
+			fpsDiv.className = "dev-ui";
+		}
 	}
 
 	if (mapLoaded){

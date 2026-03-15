@@ -10,10 +10,11 @@ export class Map
 		this.altitudeMap = [];
 		this.textureMap = [];
 		this.lightingMap = [];
+		this.contrastMap = [];
 		this.spriteMap = [];
 		this.gridTile = null;
 		this.gridctx = null;
-		this.mapEditor = true;
+		this.mapEditor = false;
 
         // calculando altura com 45 graus de rotação e hipotenusa gridSize
         // this.gridHeight = Math.round(.707106781 * this.gridSize);
@@ -142,13 +143,13 @@ export class Map
 
 		ctx.save();
 		if (this.mapEditor && this.hoverTile.x == tileX && this.hoverTile.y == tileY) {
-			ctx.filter = "brightness(1.2)";
+			offsetY += 3;
 		}
 
-		// const light = this.lightingMap[tileY][tileX];
+		const light = this.contrastMap[tileY][tileX];
 
-		// if (light > 1)
-		// 	ctx.filter = `brightness(${light}) saturate(${light})`;
+		if (light > 1)
+			ctx.filter = `contrast(${light*1.3})`;
 
 		ctx.drawImage(
 			img,
@@ -176,6 +177,12 @@ export class Map
 		let offsetX = img.width / 2;
 		let offsetY = img.height - distanceFromGround;
 
+		ctx.save();
+		const light = this.contrastMap[tileY][tileX];
+
+		if (light > 1)
+			ctx.filter = `contrast(${light*1.3})`;
+
 		ctx.drawImage(
 			img,
 			screenX - offsetX * this.camera.z,
@@ -183,10 +190,11 @@ export class Map
 			img.width * this.camera.z,
 			img.height * this.camera.z
 		)
+		ctx.restore()
 	}
 
 	addLight(tileX, tileY, radius, intensity)
-	// adiciona iluminacao radial aos tiles individualmente (canvas de tiles)
+	// aumenta o contraste dos tiles num raio e adiciona iluminacao no canvas de luz
 	{
 		if (radius == 0) return;
 		for (let y = -radius; y <= radius; y++){
@@ -195,7 +203,7 @@ export class Map
 				const gx = tileX + x;
 				const gy = tileY + y;
 
-				if (!this.lightingMap[gy] || this.lightingMap[gy][gx] === undefined)
+				if (!this.contrastMap[gy] || this.contrastMap[gy][gx] === undefined)
 					continue;
 
 				const dist = Math.sqrt(x*x + y*y);
@@ -204,15 +212,10 @@ export class Map
 
 				const falloff = 2 - dist / radius;
 
-				this.lightingMap[gy][gx] = falloff * intensity;
+				this.contrastMap[gy][gx] = falloff * intensity;
 			}
 		}
-	}
-
-	addSinglePointLight(x, y, radius)
-	// adiciona iluminacao em 1 tile para uso com drawLightOverTile (canvas de luz)
-	{
-		this.lightingMap[y][x] = radius;
+		this.lightingMap[tileY][tileX] = radius/2;
 	}
 
 	drawLightOverTile(x, y, radius, ctx, canvas)
@@ -240,11 +243,11 @@ export class Map
 			0, 0, radius * this.camera.z
 		);
 
-		gradient.addColorStop(0, "rgba(255, 226, 123, 0.4)");
-		gradient.addColorStop(0.3, "rgba(255, 204, 128, 0.2)");
+		gradient.addColorStop(0, "hsla(47, 100%, 71%, 0.30)");
+		gradient.addColorStop(0.5, "rgba(255, 171, 46, 0.2)");
 		gradient.addColorStop(1, "rgba(255,200,120,0)");
 
-		ctx.globalCompositeOperation = "overlay";
+		ctx.globalCompositeOperation = "light";
 
 		ctx.fillStyle = gradient;
 
@@ -281,23 +284,15 @@ export class Map
 		this.gridctx = this.gridTile.getContext("2d");
 	}
 
-	changeTile(tileID, newTile, newHeight)
+	changeTile(x, y, newTile, newHeight)
     {
-    	const regex = /$$\s*([+-]?\d+)\s*,\s*([+-]?\d+(?:\.\d+)?)\s*$$/;
-    	const x = 0;
-    	const y = 0;
-		while ((match = regex.exec(texto)) !== null) {
-			x = parseFloat(match[1]); // coordenada x
-			y = parseFloat(match[2]); // coordenada y
-    	}
-    	
 		//escolhe um tile aleatorio pra cada categoria de chão
 		let minRange = tileRange[newTile][0];
 		let maxRange = tileRange[newTile][1] + 1;
 		let randomTile = Math.floor(Math.random() * (maxRange - minRange) + minRange);
-		this.surfaceMap[x][y] = randomTile;
-    	this.altitudeMap[x][y] = newHeight;
-		return this.loadImg(`../assets/map/${newHeight}/${randomTile}.png`);
+		this.surfaceMap[y][x] = newTile;
+		this.textureMap[y][x] = randomTile;
+    	this.altitudeMap[y][x] = newHeight;
     }
 
 	createSpriteOnTile(tileX, tileY, sprite)
