@@ -56,6 +56,7 @@ const sandBtn = document.querySelector("#s");
 const l1Btn = document.querySelector("#l1");
 const l2Btn = document.querySelector("#l2");
 const l3Btn = document.querySelector("#l3");
+const lightBtn = document.querySelector("#light-btn");
 
 //const guideHref = document.getElementById('guide-href');
 //guideHref.onclick = openGuideWindow;
@@ -75,14 +76,14 @@ l1Btn.onclick = () => mapEditorSelectedHeight = 1;
 l2Btn.onclick = () => mapEditorSelectedHeight = 2;
 l3Btn.onclick = () => mapEditorSelectedHeight = 3;
 
+lightBtn.onclick = () => mapEditorSelectedTile = 'light';
+
 let txtmap = [];
 // testMap();
 
 drawMap().then(() => {
 	mapLoaded = true;
 })
-
-//map.addEffect(26, 27, 6, 12, "brightness", 3);
 
 // let loadedMap = getMapData();
 updateHP(100);
@@ -127,8 +128,20 @@ mapLayer.addEventListener('click', function(event) {
 });
 
 mapLayer.addEventListener('mousedown', function(event) {
+	const rect = mapLayer.getBoundingClientRect();
+	const canvasPos = screenToCanvas(event, rect);
+	let gridCoordenate = getTile(canvasPos.x, canvasPos.y);
+	
 	if (event.button == 0)
 		mousedown = true;
+		
+	if (map.mapEditor && mapLoaded) {
+		if (mapEditorSelectedTile == 'light') {
+			if (map.lightingMap[gridCoordenate.y][gridCoordenate.x] == 0)
+				map.addLight(gridCoordenate.x, gridCoordenate.y, 10, .5);
+			else map.removeLight(gridCoordenate.x, gridCoordenate.y);
+		}
+	}
 });
 
 mapLayer.addEventListener('mouseup', function(event) {
@@ -167,6 +180,7 @@ mapLayer.addEventListener('mousemove', function(event) {
 		wrapper.appendChild(tileInfo);
 		if (mousedown)
 		{
+			if (mapEditorSelectedTile != 'light')
 			map.changeTile(gridCoordenate.x, gridCoordenate.y, mapEditorSelectedTile, mapEditorSelectedHeight);
 		}
 	}
@@ -455,12 +469,11 @@ function minuteTick() {
 		gameTime.minute = 0;
 	}
 
-	updateTime(gameTime.hour, gameTime.minute < 10 ? `0${gameTime.minute}` : gameTime.minute, "window")
+	updateTime(gameTime.hour, gameTime.minute < 10 ? `0${gameTime.minute}` : gameTime.minute)
 }
 
 function updateDynamicLighting(globalLighting) {
 	map.addLight(30, 30, 10, globalLighting);
-	// map.addSinglePointLight(30, 30, 3*globalLighting);
 }
 
 function updateGlobalLighting() {
@@ -624,7 +637,7 @@ function loop(now) {
 		minuteTick();
 		let currentFPS = Math.round(1/dt);
 		fps.innerHTML = currentFPS;
-		if (currentFPS < 59)
+		if (currentFPS < 40)
 		{
 			fpsDiv.classList.add("dev-ui-alerta");
 			fpsDiv.classList.remove("dev-ui")

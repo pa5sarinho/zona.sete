@@ -488,15 +488,22 @@
 
         button.dev-ui:active {
 			background-color: var(--supporting-color);
-			border: 4px double var(--supporting-color);;
+			border: 4px double var(--supporting-color);
 		}
 
 		#g {
 			background: url("./assets/map/1/0.png");
+			background-color: var(--supporting-color);
 		}
 
 		#s {
 			background: url("./assets/map/1/6.png");
+			background-color: var(--supporting-color);
+		}
+
+		#light-btn {
+			background: url("./assets/sprites/lamp_lit_icon.png");
+			background-position: center;
 		}
 
     </style>
@@ -552,6 +559,8 @@
 						<button class="dev-ui interactable" id="l1" style="width: 30px;">1</button>
 						<button class="dev-ui interactable" id="l2" style="width: 30px;">2</button>
 						<button class="dev-ui interactable" id="l3" style="width: 30px;">3</button>
+
+						<button class="dev-ui interactable" id="light-btn" style="width: 30px;"></button>
 					</div>
 					<!-- <div class="filler" style="width: 1040px;"></div> -->
 					<div class="dev-ui" id="fps-wrapper" style="display: flex; height: 22px; width: 60px;">

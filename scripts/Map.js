@@ -6,12 +6,14 @@ export class Map
     {
         this.mapDocObject = mapDocObject;
         this.gridSize = gridSize; // gridSize^2 é justamente os cm^2 na escala do mapa
+        
         this.surfaceMap = [];
 		this.altitudeMap = [];
 		this.textureMap = [];
 		this.lightingMap = [];
 		this.contrastMap = [];
 		this.spriteMap = [];
+
 		this.gridTile = null;
 		this.gridctx = null;
 		this.mapEditor = false;
@@ -59,7 +61,8 @@ export class Map
 
 		let range = Math.ceil(34/this.camera.z);
 		// mantendo capado em zoom de 0.7 por questoes de performance...
-		if (this.camera.z < 0.7) range = Math.ceil(34/0.7)
+		if (this.camera.z < 0.7) range = Math.ceil(34/0.7);
+		const icon = this.loadImg(`../assets/sprites/lamp_lit_icon.png`);
 
         for (let y_index = centerY-range; y_index < centerY+range; y_index++)
         {
@@ -74,8 +77,12 @@ export class Map
 				const tile = this.loadImg(`../assets/map/${level}/${this.textureMap[y_index][x_index]}.png`);
 				this.drawTile(x_index, y_index, tile, canvas, ctx);
 
-				if (this.lightingMap[x_index][y_index] != 0)
-					this.drawLightOverTile(x_index, y_index, 100*this.lightingMap[x_index][y_index], lightCtx, lightCanvas);
+				if (this.lightingMap[y_index][x_index] != 0) {
+					this.drawLightOverTile(x_index, y_index, 100*this.lightingMap[y_index][x_index], lightCtx, lightCanvas);
+					
+					if (this.mapEditor)
+						this.drawSpriteOnTile(x_index, y_index, icon, canvas, ctx, level);
+				}
 				
 				if (this.spriteMap[y_index][x_index] != ' ') 
 				{
@@ -216,6 +223,29 @@ export class Map
 			}
 		}
 		this.lightingMap[tileY][tileX] = radius/2;
+	}
+
+	removeLight(tileX, tileY)
+	{
+		const radius = this.lightingMap[tileY][tileX];
+		
+		for (let y = -radius; y <= radius; y++){
+			for (let x = -radius; x <= radius; x++){
+
+				const gx = tileX + x;
+				const gy = tileY + y;
+
+				if (!this.contrastMap[gy] || this.contrastMap[gy][gx] === undefined)
+					continue;
+
+				const dist = Math.sqrt(x*x + y*y);
+
+				if (dist > radius) continue;
+
+				this.contrastMap[gy][gx] = 0;
+			}
+		}
+		this.lightingMap[tileY][tileX] = 0;
 	}
 
 	drawLightOverTile(x, y, radius, ctx, canvas)
