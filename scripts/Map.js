@@ -62,7 +62,8 @@ export class Map
 		let range = Math.ceil(34/this.camera.z);
 		// mantendo capado em zoom de 0.7 por questoes de performance...
 		if (this.camera.z < 0.7) range = Math.ceil(34/0.7);
-		const icon = this.loadImg(`../assets/sprites/lamp_lit_icon.png`);
+		const lamp_on = this.loadImg(`../assets/sprites/lamp_lit_icon.png`);
+		const lamp_off = this.loadImg(`../assets/sprites/lamp_icon.png`);
 
         for (let y_index = centerY-range; y_index < centerY+range; y_index++)
         {
@@ -77,12 +78,14 @@ export class Map
 				const tile = this.loadImg(`../assets/map/${level}/${this.textureMap[y_index][x_index]}.png`);
 				this.drawTile(x_index, y_index, tile, canvas, ctx);
 
-				if (this.lightingMap[y_index][x_index] != 0) {
+				if (this.lightingMap[y_index][x_index] > 0) {
 					this.drawLightOverTile(x_index, y_index, 100*this.lightingMap[y_index][x_index], lightCtx, lightCanvas);
 					
 					if (this.mapEditor)
-						this.drawSpriteOnTile(x_index, y_index, icon, canvas, ctx, level);
+						this.drawSpriteOnTile(x_index, y_index, lamp_on, canvas, ctx, level);
 				}
+				else if (this.lightingMap[y_index][x_index] < 0 && this.mapEditor)
+					this.drawSpriteOnTile(x_index, y_index, lamp_off, canvas, ctx, level);
 				
 				if (this.spriteMap[y_index][x_index] != ' ') 
 				{
@@ -226,8 +229,9 @@ export class Map
 	}
 
 	removeLight(tileX, tileY)
+	// remove completamente a fonte de luz: substitui por zero
 	{
-		const radius = this.lightingMap[tileY][tileX];
+		const radius = this.lightingMap[tileY][tileX] * 2;
 		
 		for (let y = -radius; y <= radius; y++){
 			for (let x = -radius; x <= radius; x++){
@@ -246,6 +250,57 @@ export class Map
 			}
 		}
 		this.lightingMap[tileY][tileX] = 0;
+	}
+
+	turnOffLight(tileX, tileY)
+	// apaga a luz: mantém a informação no mapa, porém com valor negativo
+	{
+		const radius = this.lightingMap[tileY][tileX] * 2;
+				
+		for (let y = -radius; y <= radius; y++){
+			for (let x = -radius; x <= radius; x++){
+
+				const gx = tileX + x;
+				const gy = tileY + y;
+
+				if (!this.contrastMap[gy] || this.contrastMap[gy][gx] === undefined)
+					continue;
+
+				const dist = Math.sqrt(x*x + y*y);
+
+				if (dist > radius) continue;
+
+				const falloff = 2 - dist / radius;
+
+				this.contrastMap[gy][gx] = 0;
+			}
+		}
+		this.lightingMap[tileY][tileX] = (radius/2)*-1;
+	}
+
+	turnOnLight(tileX, tileY)
+	{
+		const radius = this.lightingMap[tileY][tileX] * 2;
+		
+		for (let y = -radius; y <= radius; y++){
+			for (let x = -radius; x <= radius; x++){
+
+				const gx = tileX + x;
+				const gy = tileY + y;
+
+				if (!this.contrastMap[gy] || this.contrastMap[gy][gx] === undefined)
+					continue;
+
+				const dist = Math.sqrt(x*x + y*y);
+
+				if (dist > radius) continue;
+
+				const falloff = 2 - dist / radius;
+
+				this.contrastMap[gy][gx] = falloff * intensity;
+			}
+		}
+		this.lightingMap[tileY][tileX] = (radius/2)*-1;
 	}
 
 	drawLightOverTile(x, y, radius, ctx, canvas)

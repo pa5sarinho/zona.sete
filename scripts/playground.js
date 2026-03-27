@@ -6,6 +6,8 @@ import { timeTranslate } from "./objects/translation.js";
 import { DropDownMenu, PopUpWindow, screenToCanvas } from "./ui.js";
 
 const speed = 5;
+const PERFORMANCE = 65;
+const ENERGY_SAVING = 35;
 
 let gato = new Bicho(animais.gato_domestico);
 let map = new Map(document.getElementById('map'), 45);
@@ -15,6 +17,7 @@ let map = new Map(document.getElementById('map'), 45);
 // popUp.draw();
 
 let menu = 0;
+let editorMenu = 0;
 const mapLayer = document.getElementById('map');
 let mapLoaded = false;
 
@@ -28,6 +31,7 @@ const wrapper = document.querySelector('.wrapper');
 
 const mapEditorMenu = document.getElementById("map-editor-menu");
 const fpsDiv = document.querySelector("#fps-wrapper");
+let FPS_Cap = ENERGY_SAVING;
 
 const downloadMapBtn = document.querySelector(".download-map");
 const mapEditorBtn = document.querySelector(".map-editor");
@@ -93,6 +97,11 @@ let choices =
 	"run", "dig", "build"
 ]
 
+let editorChoices =
+[
+	"addProp", "filler"
+]
+
 const keys = {
   ArrowUp: false,
   ArrowDown: false,
@@ -105,16 +114,16 @@ const keys = {
 };
 
 let mousedown = false;
+let pause = false;
 
 // ---------------------------------- EVENT LISTENERS ----------------------------------
 // gere todos os cliques com o botão esquerdo no mapa
 mapLayer.addEventListener('click', function(event) {
-    // console.log('Mouse X:', event.clientX, 'Mouse Y:', event.clientY);
+	const rect = wrapper.getBoundingClientRect();
+	const canvasPos = screenToCanvas(event, rect);
+	let gridCoordenate = getTile(canvasPos.x, canvasPos.y);
 	if (!map.mapEditor)
 	{
-		const rect = wrapper.getBoundingClientRect();
-		const canvasPos = screenToCanvas(event, rect);
-
 		if (document.getElementById('open-drop-down-menu'))
 		{
 			menu.destroy();
@@ -125,6 +134,20 @@ mapLayer.addEventListener('click', function(event) {
 			menu.draw();
 		}
 	}
+	else
+	{
+		if (map.mapEditor && mapLoaded) {
+			if (mapEditorSelectedTile == 'light') {
+			// clique esquerdo adiciona a luz, clique direito apaga ou acende a luz
+				if (map.lightingMap[gridCoordenate.y][gridCoordenate.x] == 0)
+					map.addLight(gridCoordenate.x, gridCoordenate.y, 10, .5);
+			}
+		}
+		if (document.getElementById('open-drop-down-menu'))
+   		{
+   			editorMenu.destroy();
+   		}
+	}
 });
 
 mapLayer.addEventListener('mousedown', function(event) {
@@ -134,14 +157,6 @@ mapLayer.addEventListener('mousedown', function(event) {
 	
 	if (event.button == 0)
 		mousedown = true;
-		
-	if (map.mapEditor && mapLoaded) {
-		if (mapEditorSelectedTile == 'light') {
-			if (map.lightingMap[gridCoordenate.y][gridCoordenate.x] == 0)
-				map.addLight(gridCoordenate.x, gridCoordenate.y, 10, .5);
-			else map.removeLight(gridCoordenate.x, gridCoordenate.y);
-		}
-	}
 });
 
 mapLayer.addEventListener('mouseup', function(event) {
@@ -157,8 +172,22 @@ mapLayer.addEventListener('contextmenu', function(event) {
     const rect = wrapper.getBoundingClientRect();
 	const canvasPos = screenToCanvas(event, rect);
 	let gridCoordenate = getTile(canvasPos.x, canvasPos.y);
-    
-	map.createSpriteOnTile(gridCoordenate.x, gridCoordenate.y, 'flag');
+
+	if (document.getElementById('open-drop-down-menu'))
+	{
+		editorMenu.destroy();
+	}
+    if (map.mapEditor) {
+	    if (map.lightingMap[gridCoordenate.y][gridCoordenate.x] > 0)
+			map.turnOffLight(gridCoordenate.x, gridCoordenate.y);
+		else if (map.lightingMap[gridCoordenate.y][gridCoordenate.x] < 0)
+			map.turnOnLight(gridCoordenate.x, gridCoordenate.y);
+	    else {
+	    	editorMenu = new DropDownMenu(canvasPos.x, canvasPos.y, editorChoices, map, 'flag');
+	    	editorMenu.draw();
+	    }
+    }
+	// map.createSpriteOnTile(gridCoordenate.x, gridCoordenate.y, 'flag');
 })
 
 mapLayer.addEventListener('mousemove', function(event) {
@@ -169,6 +198,8 @@ mapLayer.addEventListener('mousemove', function(event) {
 	let tilePos = tileToScreen(gridCoordenate.x, gridCoordenate.y);
 
 	map.hoverTile = {x:gridCoordenate.x,y:gridCoordenate.y}
+
+	// "pincel" de tiles do editor de mapa
 	if (map.mapEditor && mapLoaded) {
 		tileInfo.innerHTML  = `${tileDescription[map.surfaceMap[map.hoverTile.y][map.hoverTile.x]]} : 
 								textura ${map.textureMap[map.hoverTile.y][map.hoverTile.x]} : 
@@ -207,21 +238,12 @@ mapLayer.addEventListener("wheel", (event) => {
 // gere as teclas pressionadas
 document.addEventListener("keydown", (event) => {
 	if (event.key in keys) keys[event.key] = true;
-	// switch(event.key) {
-	// 	case "ArrowDown":
-	// 		moveView(0, -10);
-	// 		console.log("down");
-	// 		break;
-	// 	case "ArrowUp":
-	// 		moveView(0, 10);
-	// 		break;
-	// 	case "ArrowLeft":
-	// 		moveView(10, 0);
-	// 		break;
-	// 	case "ArrowRight":
-	// 		moveView(-10, 0);
-	// 		break;
-	// }
+	else if (event.key == " ")
+	{
+		if (!pause)
+			pause = true;
+		else pause = false;
+	}
 })
 
 document.addEventListener("keyup", (event) => {
@@ -617,34 +639,42 @@ let last = performance.now()
 let hourTimer = 0;
 let minuteTimer = 0;
 
-function loop(now) {
+const frameTime = 1000 / FPS_Cap;
 
+function loop(now) {
+	if (now - last < frameTime) {
+		requestAnimationFrame(loop);
+		return;
+	}
 	const dt = Math.min((now - last) / 1000, 0.1);
 	last = now;
 
 	update(dt);
+	
+	if (!pause)
+	{
+		minuteTimer += dt;
+		hourTimer += dt;
 
-	minuteTimer += dt;
-	hourTimer += dt;
-
-	if (hourTimer >= HOUR_LENGTH){
-		hourTimer -= HOUR_LENGTH;
-		hourTick();
-	}
-
-	if (minuteTimer >= MINUTE_LENGTH){
-		minuteTimer -= MINUTE_LENGTH;
-		minuteTick();
-		let currentFPS = Math.round(1/dt);
-		fps.innerHTML = currentFPS;
-		if (currentFPS < 40)
-		{
-			fpsDiv.classList.add("dev-ui-alerta");
-			fpsDiv.classList.remove("dev-ui")
+		if (hourTimer >= HOUR_LENGTH){
+			hourTimer -= HOUR_LENGTH;
+			hourTick();
 		}
-		else
-		{
-			fpsDiv.className = "dev-ui";
+
+		if (minuteTimer >= MINUTE_LENGTH){
+			minuteTimer -= MINUTE_LENGTH;
+			minuteTick();
+			let currentFPS = Math.round(1/dt);
+			fps.innerHTML = currentFPS;
+			if (currentFPS < 29)
+			{
+				fpsDiv.classList.add("dev-ui-alerta");
+				fpsDiv.classList.remove("dev-ui")
+			}
+			else
+			{
+				fpsDiv.className = "dev-ui";
+			}
 		}
 	}
 

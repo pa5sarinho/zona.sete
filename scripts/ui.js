@@ -3,12 +3,13 @@ import { iCommandYouTo } from "./objects/actions.js";
 
 export class DropDownMenu
 {
-	constructor(posx, posy, choiceList)
+	constructor(posx, posy, choiceList, obj1="0", obj2="0")
 	{
-		this.posx = posx;
-		this.posy = posy;
+		this.pos = {x: posx, y: posy}
 		this.choiceList = choiceList;
 		this.language = 'pt';
+		this.obj1 = obj1;
+		this.obj2 = obj2;
 	}
 
 	draw(width = 300)
@@ -18,8 +19,8 @@ export class DropDownMenu
 		ddMenu.id = 'open-drop-down-menu';
 		ddMenu.style.width = `${width}px`;
 
-		let x = this.posx;
-		let y = this.posy;
+		let x = this.pos.x;
+		let y = this.pos.y;
 
 		if (x > 1920 - width)
 			x = 1920 - width;
@@ -37,7 +38,7 @@ export class DropDownMenu
 			item.innerHTML = actions[this.language][el];
 			item.onclick = () => {
 				ddMenu.remove();
-				iCommandYouTo(el);
+				iCommandYouTo(el, x, y, this.obj1, this.obj2);
 			};
 			ddMenu.appendChild(item);
 		});
